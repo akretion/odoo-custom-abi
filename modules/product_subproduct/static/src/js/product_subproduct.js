@@ -101,7 +101,7 @@ openerp.product_subproduct = function(instance, local) {
                 self.$('select.select-subproduct').each(function(){
                     if(this.value != 'choice' && this.value != 'delete') {
                         subproducts.push(
-                            self.pos.db.get_subproduct_by_id(self.product.id, this.value)
+                            self.pos.db.get_subproduct_by_id(self.product.product_tmpl_id, this.value)
                         );
                     }
                 });
