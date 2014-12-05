@@ -30,6 +30,27 @@ openerp.product_subproduct = function(instance, local) {
             return subproduct_price;
         },
 
+        export_as_JSON: function() {
+            var config = {};
+            if (!_.isUndefined(this.product.subproducts)) {
+                bom = [];
+                for(var i=0, len=this.product.subproducts.length; i<len; i++) {
+                    bom.push({product_id: this.product.subproducts[i].subproduct_id[0]});
+                }
+                config.bom = bom;
+            }
+
+            var res =  {
+                qty: this.get_quantity(),
+                config: config,
+                price_unit: this.get_unit_price(),
+                discount: this.get_discount(),
+                product_id: this.get_product().id,
+            };
+            return res;
+        },
+
+
     })
 
     module.SelectSubproductPopupWidget = module.PopUpWidget.extend({
