@@ -32,10 +32,11 @@ openerp.product_subproduct = function(instance, local) {
 
         export_as_JSON: function() {
             var config = {};
-            if (!_.isUndefined(this.product.subproducts)) {
+            var product = this.get_product();
+            if (!_.isUndefined(product.subproducts)) {
                 bom = [];
-                for(var i=0, len=this.product.subproducts.length; i<len; i++) {
-                    bom.push({product_id: this.product.subproducts[i].subproduct_id[0]});
+                for(var i=0, len=product.subproducts.length; i<len; i++) {
+                    bom.push({product_id: product.subproducts[i].subproduct_id[0]});
                 }
                 config.bom = bom;
             }
@@ -45,7 +46,7 @@ openerp.product_subproduct = function(instance, local) {
                 config: config,
                 price_unit: this.get_unit_price(),
                 discount: this.get_discount(),
-                product_id: this.get_product().id,
+                product_id: product.id,
             };
             return res;
         },
