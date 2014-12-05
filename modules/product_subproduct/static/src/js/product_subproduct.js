@@ -12,6 +12,7 @@ openerp.product_subproduct = function(instance, local) {
     });
 
     module.Orderline = module.Orderline.extend({
+
         get_unit_price: function(){
             var rounding = this.pos.currency.rounding;
             var price = this.price + this.get_subproducts_price();
@@ -31,26 +32,22 @@ openerp.product_subproduct = function(instance, local) {
         },
 
         export_as_JSON: function() {
-            var config = {};
+            
+            // super() for Backbone Model
+            var res = module.Orderline.__super__.export_as_JSON.apply(this, arguments);
+
             var product = this.get_product();
             if (!_.isUndefined(product.subproducts)) {
-                bom = [];
+                var config = {};
+                config.bom = [];
                 for(var i=0, len=product.subproducts.length; i<len; i++) {
-                    bom.push({product_id: product.subproducts[i].subproduct_id[0]});
+                    config.bom.push({product_id: product.subproducts[i].subproduct_id[0]});
                 }
-                config.bom = bom;
+                res.config = config;
             }
 
-            var res =  {
-                qty: this.get_quantity(),
-                config: config,
-                price_unit: this.get_unit_price(),
-                discount: this.get_discount(),
-                product_id: product.id,
-            };
             return res;
         },
-
 
     })
 
@@ -98,7 +95,9 @@ openerp.product_subproduct = function(instance, local) {
                 var subproducts = [];
                 self.$('select.select-subproduct').each(function(){
                     if(this.value != 'choice' && this.value != 'delete') {
-                        subproducts.push(self.pos.db.get_subproduct_by_id(this.value));
+                        subproducts.push(
+                            self.pos.db.get_subproduct_by_id(self.product.id, this.value)
+                        );
                     }
                 });
                 self.product.subproducts = subproducts;
@@ -170,15 +169,13 @@ openerp.product_subproduct = function(instance, local) {
             return res
         },
 
-        get_subproduct_by_id: function(subproduct_id) {
+        get_subproduct_by_id: function(product_id, subproduct_id) {
             var subproduct = false;
-            var subproducts = this.subproduct_by_product_id;
-            for (var key in subproducts) {
-                for (var i=0, len=subproducts[key].length; i<len; i++) {
-                    subproduct = subproducts[key][i];
-                    if (subproduct.id == subproduct_id)
-                        break;
-                }
+            var subproducts = this.get_subproducts(product_id);
+            for (var i=0, len=subproducts.length; i<len; i++) {
+                subproduct = subproducts[i];
+                if (subproduct.id == subproduct_id)
+                    break;
             }
             return subproduct;
         },
