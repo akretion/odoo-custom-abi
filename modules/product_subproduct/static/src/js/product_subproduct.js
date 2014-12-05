@@ -31,6 +31,12 @@ openerp.product_subproduct = function(instance, local) {
             return subproduct_price;
         },
 
+        can_be_merged_with: function(orderline){
+            if (!_.isUndefined(orderline.get_product().subproducts))
+                return false;
+            return module.Orderline.__super__.can_be_merged_with.apply(this, arguments);
+        },
+
         export_as_JSON: function() {
             
             // super() for Backbone Model
@@ -66,7 +72,6 @@ openerp.product_subproduct = function(instance, local) {
 
             self.product = options.product;
             self.subproducts = options.subproducts;
-            
             this.appendTo(this.pos_widget.$el);
             this.renderElement();
 
@@ -102,7 +107,8 @@ openerp.product_subproduct = function(instance, local) {
                 });
                 self.product.subproducts = subproducts;
                 self.pos_widget.screen_selector.close_popup();
-                options.options.click_product_action(self.product);
+                var product = jQuery.extend(true, {}, self.product);
+                options.options.click_product_action(product);
            });
         },
 
@@ -112,8 +118,8 @@ openerp.product_subproduct = function(instance, local) {
 
         render_orderline: function(orderline){
             var template = 'Orderline';
-            if (!_.isUndefined(orderline.product.subproducts) &&
-                orderline.product.subproducts.length > 0) {
+            if (!_.isUndefined(orderline.get_product().subproducts) &&
+                orderline.get_product().subproducts.length > 0) {
                 template += 'WithSubproducts';
             }
             var el_str  = openerp.qweb.render(template, {widget:this, line:orderline});
@@ -135,9 +141,8 @@ openerp.product_subproduct = function(instance, local) {
             var self = this;
 
             this.click_product_handler = function(event){
-                var product_id = this.dataset['productId'];
-                var product = self.pos.db.get_product_by_id(product_id);
-                var subproducts = self.pos.db.get_subproducts(product_id);
+                var product = self.pos.db.get_product_by_id(this.dataset['productId']);
+                var subproducts = self.pos.db.get_subproducts(this.dataset['productTmpl']);
                 if (subproducts.length > 0) {
                     params = {
                         product: product,
