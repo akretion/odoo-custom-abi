@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+
+    <t t-name="OrderlineWithSubproducts" t-extend="Orderline">
+        <t t-jquery="span.product-name" t-operation="append">
+            <button>Configure</button>
+        </t>
+        <t t-jquery="ul.info-list" t-operation="append">
+            <t t-foreach="line.product.subproducts" t-as="subproduct">
+                <li class="info subproduct">
+                    <t t-esc="subproduct_value.subproduct_id[1]"/>
+                    <t t-esc="widget.format_currency(subproduct_value.subproduct_price)"/>
+                </li>
+            </t>
+        </t>
+    </t>
+
+    <t t-name="SelectSubproductPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-select-subproduct">
+                <div class="select-area">
+                    <p class="message"><t t-esc="widget.product.display_name"/></p>
+                    <ul class="select-subproduct">
+                        <li class="styled-select slate element">
+                            <select class="select-subproduct">
+                                <option value="choice">Select...</option>
+                                <t t-foreach="widget.subproducts" t-as="subproduct">
+                                    <option t-att-value="subproduct_value.id"><t t-esc="subproduct_value.subproduct_id[1]"/> <t t-esc="widget.format_currency(subproduct_value.subproduct_price)"/></option>
+                                </t>
+                            </select>
+                        </li>
+                        <li class="element">
+                            <button class="delete-subproduct"><i class="fa fa-times"/></button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer" style="height=20%">
+                    <div class="button ok">
+                        Add
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
