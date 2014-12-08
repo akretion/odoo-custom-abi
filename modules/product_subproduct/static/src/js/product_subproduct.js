@@ -140,7 +140,10 @@ openerp.product_subproduct = function(instance, local) {
             this._super(parent, options);
             var self = this;
 
+            self.click_product_handler_original = this.click_product_handler;
+
             this.click_product_handler = function(event){
+
                 var product = self.pos.db.get_product_by_id(this.dataset['productId']);
                 var subproducts = self.pos.db.get_subproducts(this.dataset['productTmpl']);
                 if (subproducts.length > 0) {
@@ -152,7 +155,7 @@ openerp.product_subproduct = function(instance, local) {
                     self.pos.pos_widget.screen_selector.show_popup(
                         'select-subproduct', params);
                 } else {
-                    options.click_product_action(product);
+                    self.click_product_handler_original.call(this, event);
                 }
             };
         },
