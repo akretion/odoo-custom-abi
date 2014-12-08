@@ -11,6 +11,15 @@ openerp.product_subproduct = function(instance, local) {
         },
     });
 
+    module.Order = module.Order.extend({
+
+        updateProduct: function(product, orderline_id){
+           var orderline = this.getOrderline(orderline_id);
+           orderline.product = product;
+           orderline.trigger('change', orderline);
+        }
+    })
+
     module.Orderline = module.Orderline.extend({
 
         get_unit_price: function(){
@@ -108,7 +117,13 @@ openerp.product_subproduct = function(instance, local) {
                 self.product.subproducts = subproducts;
                 self.pos_widget.screen_selector.close_popup();
                 var product = jQuery.extend(true, {}, self.product);
-                options.options.click_product_action(product);
+                order = self.pos.get('selectedOrder');
+                if (options.configure_line_id) {
+                    order.updateProduct(product, options.configure_line_id);
+                }
+                else {
+                    order.addProduct(product);
+                }
            });
         },
 
@@ -117,6 +132,7 @@ openerp.product_subproduct = function(instance, local) {
     module.OrderWidget = module.OrderWidget.extend({
 
         render_orderline: function(orderline){
+            self = this;
             var template = 'Orderline';
             if (!_.isUndefined(orderline.get_product().subproducts) &&
                 orderline.get_product().subproducts.length > 0) {
@@ -128,6 +144,19 @@ openerp.product_subproduct = function(instance, local) {
             el_node = el_node.childNodes[0];
             el_node.orderline = orderline;
             el_node.addEventListener('click',this.line_click_handler);
+            $(el_node).find('button').on('click', function() {
+                var product = orderline.product;
+                var subproducts = self.pos.db.get_subproducts(product.product_tmpl_id);
+                params = {
+                    product: product,
+                    subproducts: subproducts,
+                    orderline: orderline,
+                    configure_line_id: orderline.id,
+                    selected_subproducts: orderline.product.subproducts
+                }
+                self.pos.pos_widget.screen_selector.show_popup(
+                    'select-subproduct', params);
+            });
             orderline.node = el_node;
             return el_node;
         },
@@ -147,10 +176,11 @@ openerp.product_subproduct = function(instance, local) {
                 var product = self.pos.db.get_product_by_id(this.dataset['productId']);
                 var subproducts = self.pos.db.get_subproducts(this.dataset['productTmpl']);
                 if (subproducts.length > 0) {
-                    params = {
+                    var params = {
                         product: product,
                         subproducts: subproducts,
-                        options: options
+                        options: options,
+                        configure_line_id: false
                     };
                     self.pos.pos_widget.screen_selector.show_popup(
                         'select-subproduct', params);
