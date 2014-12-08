@@ -11,17 +11,7 @@ openerp.product_subproduct = function(instance, local) {
         },
     });
 
-    module.Order = module.Order.extend({
-
-        updateProduct: function(product, orderline_id){
-           var orderline = this.getOrderline(orderline_id);
-           orderline.product = product;
-           orderline.trigger('change', orderline);
-        }
-    })
-
     module.Orderline = module.Orderline.extend({
-
         get_unit_price: function(){
             var rounding = this.pos.currency.rounding;
             var price = this.price + this.get_subproducts_price();
@@ -40,30 +30,6 @@ openerp.product_subproduct = function(instance, local) {
             return subproduct_price;
         },
 
-        can_be_merged_with: function(orderline){
-            if (!_.isUndefined(orderline.get_product().subproducts))
-                return false;
-            return module.Orderline.__super__.can_be_merged_with.apply(this, arguments);
-        },
-
-        export_as_JSON: function() {
-            
-            // super() for Backbone Model
-            var res = module.Orderline.__super__.export_as_JSON.apply(this, arguments);
-
-            var product = this.get_product();
-            if (!_.isUndefined(product.subproducts)) {
-                var config = {};
-                config.bom = [];
-                for(var i=0, len=product.subproducts.length; i<len; i++) {
-                    config.bom.push({product_id: product.subproducts[i].subproduct_id[0]});
-                }
-                res.config = config;
-            }
-
-            return res;
-        },
-
     })
 
     module.SelectSubproductPopupWidget = module.PopUpWidget.extend({
@@ -77,29 +43,51 @@ openerp.product_subproduct = function(instance, local) {
 
             var options = options || {};
             var self = this;
+            var previous;
             this._super();
 
             self.product = options.product;
             self.subproducts = options.subproducts;
+
             this.appendTo(this.pos_widget.$el);
             this.renderElement();
 
-            this.$('select.select-subproduct').change(function(){
+            this.$('select.select-subproduct').click(function() {
+                previous = $(this).val();
+            }).change(function(e){
                 var last_line = self.$('ul.select-subproduct:last');
+                var last_select = self.$('select.select-subproduct:last');
                 if(this.value != 'choice') {
-                    last_line.clone(true).insertAfter(last_line);
-                }
+                    if(last_select[0] === e.target) {
+                        last_line.clone(true).insertAfter(last_line);
+                    };
+                    self.$('select.select-subproduct').not($(this))
+                        .children()
+                        .filter('[value="' + this.value + '"]')
+                        .attr("hidden", "hidden");
+                };
+                if(previous != 'choice'){
+                    self.$('select.select-subproduct')
+                        .children()
+                        .filter('[value="'+ previous +'"]')
+                        .removeProp('hidden');
+                };
             });
 
             this.$('.delete-subproduct').click(function(e){
                 n = self.$('select.select-subproduct').length;
                 last_subproduct = self.$('.delete-subproduct:last');
-                if(last_subproduct[0] === e.target) {
+                if(last_subproduct[0] === e.target && n == 1) {
                     self.$('select.select-subproduct:last').val('choice').prop('selected', true);
-                }
+                };
                 if (n > 1) {
+                    var select = $(this).closest('ul').find('.select-subproduct');
+                    self.$('select.select-subproduct')
+                        .children()
+                        .filter('[value="' + select.val() + '"]')
+                        .removeProp('hidden');
                     $(this).closest('ul').remove();
-                }
+                };
             });
 
             this.$('.button.cancel').click(function(){
@@ -124,7 +112,7 @@ openerp.product_subproduct = function(instance, local) {
                 else {
                     order.addProduct(product);
                 }
-           });
+          });
         },
 
     });
@@ -168,7 +156,6 @@ openerp.product_subproduct = function(instance, local) {
         init: function(parent, options) {
             this._super(parent, options);
             var self = this;
-
             self.click_product_handler_original = this.click_product_handler;
 
             this.click_product_handler = function(event){
