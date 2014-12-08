@@ -11,7 +11,12 @@
 .delete-subproduct {
     margin-left: 15px;
 }
-.element{display:inline-block;margin: 0 15px;vertical-align:top;}
+
+.element{
+    display:inline-block;
+    margin: 0 15px;
+    vertical-align:top;
+}
 
 
 /* Style for select menu */

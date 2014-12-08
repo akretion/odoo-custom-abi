@@ -85,6 +85,25 @@ openerp.product_subproduct = function(instance, local) {
             this.appendTo(this.pos_widget.$el);
             this.renderElement();
 
+            var selected = options.selected_subproducts;
+            if(selected.length > 0) {
+                for(var i=0, len=selected.length; i<len; i++) {
+                    var subproduct = selected[i];
+                    var line = this.$('ul.select-subproduct:last').clone();
+                    line.find('select').val(subproduct.id).prop('selected', true);
+                    line.insertBefore('ul.select-subproduct:last');
+                }
+
+                for(var i=0, len=selected.length; i<len; i++) {
+                    var subproduct = selected[i];
+                    this.$('select.select-subproduct')
+                    .children()
+                    .filter('[value="' + subproduct.id + '"]')
+                    .not(':selected')
+                    .attr("hidden", "hidden");
+                }
+            }
+
             this.$('select.select-subproduct').click(function() {
                 previous = $(this).val();
             }).change(function(e){
@@ -200,7 +219,8 @@ openerp.product_subproduct = function(instance, local) {
                         product: product,
                         subproducts: subproducts,
                         options: options,
-                        configure_line_id: false
+                        configure_line_id: false,
+                        selected_subproducts: []
                     };
                     self.pos.pos_widget.screen_selector.show_popup(
                         'select-subproduct', params);

@@ -46,7 +46,7 @@
         </div>
     </t>
 
-    <t t-name="Product">
+    <t t-name="Product" t-extend="Product">
         <t t-jquery="span.product" t-operation="replace">
             <span class="product" t-att-data-product-id="product.id" t-att-data-product-tmpl="product.product_tmpl_id">
                 <div class="product-img">
