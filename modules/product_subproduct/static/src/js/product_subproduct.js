@@ -11,6 +11,15 @@ openerp.product_subproduct = function(instance, local) {
         },
     });
 
+    module.Order = module.Order.extend({
+
+        updateProduct: function(product, orderline_id){
+           var orderline = this.getOrderline(orderline_id);
+           orderline.product = product;
+           orderline.trigger('change', orderline);
+        }
+    })
+
     module.Orderline = module.Orderline.extend({
         get_unit_price: function(){
             var rounding = this.pos.currency.rounding;
@@ -28,6 +37,30 @@ openerp.product_subproduct = function(instance, local) {
                 }
             }
             return subproduct_price;
+        },
+
+        can_be_merged_with: function(orderline){
+            if (!_.isUndefined(orderline.get_product().subproducts))
+                return false;
+            return module.Orderline.__super__.can_be_merged_with.apply(this, arguments);
+        },
+
+        export_as_JSON: function() {
+
+            // super() for Backbone Model
+            var res = module.Orderline.__super__.export_as_JSON.apply(this, arguments);
+
+            var product = this.get_product();
+            if (!_.isUndefined(product.subproducts)) {
+                var config = {};
+                config.bom = [];
+                for(var i=0, len=product.subproducts.length; i<len; i++) {
+                    config.bom.push({product_id: product.subproducts[i].subproduct_id[0]});
+                }
+                res.config = config;
+            }
+
+            return res;
         },
 
     })
