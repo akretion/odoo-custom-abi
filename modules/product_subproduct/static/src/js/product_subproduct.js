@@ -107,17 +107,14 @@ openerp.product_subproduct = function(instance, local) {
             this.$('select.select-subproduct').focus(function() {
                 previous = $(this).val();
             }).click(function() {
-                console.log("I am in on click");
                 previous = $(this).val();
             }).change(function(e){
                 var last_line = self.$('ul.select-subproduct:last');
                 var last_select = self.$('select.select-subproduct:last');
                 if(this.value != 'choice') {
                     if(last_select[0] === e.target) {
-                        console.log("Cloning ...");
                         last_line.clone(true).insertAfter(last_line);
                     };
-                    console.log(self.$('select.select-subproduct').not($(this))
                         .children()
                         .filter('[value="' + this.value + '"]')
                     );
@@ -126,9 +123,7 @@ openerp.product_subproduct = function(instance, local) {
                         .filter('[value="' + this.value + '"]')
                         .attr("hidden", "hidden");
                 };
-                console.log("previous " + previous);
                 if(previous != 'choice'){
-                    console.log("I am in cancel");
                     self.$('select.select-subproduct')
                         .children()
                         .filter('[value="'+ previous +'"]')
