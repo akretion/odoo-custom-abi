@@ -115,9 +115,6 @@ openerp.product_subproduct = function(instance, local) {
                     if(last_select[0] === e.target) {
                         last_line.clone(true).insertAfter(last_line);
                     };
-                        .children()
-                        .filter('[value="' + this.value + '"]')
-                    );
                     self.$('select.select-subproduct').not($(this))
                         .children()
                         .filter('[value="' + this.value + '"]')
