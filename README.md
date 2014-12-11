@@ -1,5 +1,7 @@
-[![Build Status](https://travis-ci.org/grap/odoo-addons-aka.svg?branch=8.0)](https://travis-ci.org/grap/odoo-addons-aka)
-[![Coverage Status](https://coveralls.io/repos/grap/odoo-addons-aka/badge.png?branch=8.0)](https://coveralls.io/r/grap/odoo-addons-aka?branch=8.0)
+[![Build Status](https://travis-ci.org/akretion/odoo-custom-abi.svg?branch=8.0)](https://travis-ci.org/akretion/odoo-custom-abi)
+[![Coverage Status](https://coveralls.io/repos/akretion/odoo-custom-abi/badge.png?branch=8.0)](https://coveralls.io/r/akretion/odoo-custom-abi?branch=8.0)
 
-odoo-addons-aka
+odoo-custom-abi
 ===============
+
+Custom modules of Akretion.
