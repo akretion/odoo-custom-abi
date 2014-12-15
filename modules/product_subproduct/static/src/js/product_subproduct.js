@@ -63,6 +63,14 @@ openerp.product_subproduct = function(instance, local) {
             return res;
         },
 
+        export_for_printing: function() {
+
+            // super() for Backbone Model
+            var res = module.Orderline.__super__.export_for_printing.apply(this, arguments);
+            res.subproducts = this.get_product().subproducts;
+            return res;
+        }
+
     })
 
     module.SelectSubproductPopupWidget = module.PopUpWidget.extend({
@@ -242,11 +250,25 @@ openerp.product_subproduct = function(instance, local) {
 
         get_subproducts: function(product_id) {
             var res = [];
+            var subproduct;
+            var subproduct_id;
+            var subproducts = [];
+            var product;
             var table = this.subproduct_by_product_id;
             if (product_id in table) {
                 res = table[product_id];
+                for(var i=0, len=res.length; i < len; i++) {
+                    subproduct = res[i];
+                    subproduct_id = subproduct.subproduct_id[0];
+                    product = this.get_product_by_id(subproduct_id);
+                    if (product) {
+                        subproduct.subproduct_display_name = product.display_name;
+                        subproducts.push(subproduct);
+                    }
+                };
             }
-            return res
+            console.log(subproducts);
+            return subproducts;
         },
 
         get_subproduct_by_id: function(product_id, subproduct_id) {
