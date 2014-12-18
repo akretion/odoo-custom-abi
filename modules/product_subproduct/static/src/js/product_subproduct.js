@@ -13,11 +13,59 @@ openerp.product_subproduct = function(instance, local) {
 
     module.Order = module.Order.extend({
 
+        zero_pad: function(num, size) {
+            var s = ""+num;
+            while (s.length < size) {
+                s = "0" + s;
+            }
+            return s;
+        },
+
+        generateUniqueId: function() {
+            return this.zero_pad(this.pos.pos_session.id,5) + '-' +
+                this.zero_pad(this.sequence_number,4);
+        },
+
+        setLotNumbers: function() {
+            var prefix = this.generateUniqueId();
+            var product;
+            var index = 1;
+            var orderline;
+            var orderlines = this.get('orderLines').models;
+
+            for (var i=0, len=orderlines.length; i<len; i++) {
+                orderline = orderlines[i];
+                product =  orderline.get_product();
+                if (
+                    !_.isUndefined(product.subproducts) &&
+                    product.subproducts.length > 0
+                ) {
+                   orderline.lot_number =
+                        prefix + '-' + this.zero_pad(index, 3);
+                   index += 1;
+                }
+            }
+        },
+
+        addProduct: function(product, options){
+            var res = module.Order.__super__.addProduct.apply(this, arguments);
+            this.setLotNumbers();
+            return res;
+        },
+
+        removeOrderline: function(line){
+            var res = module.Order.__super__.removeOrderline.apply(this, arguments);
+            this.setLotNumbers();
+            return res;
+        },
+
         updateProduct: function(product, orderline_id){
-           var orderline = this.getOrderline(orderline_id);
-           orderline.product = product;
-           orderline.trigger('change', orderline);
-        }
+            var orderline = this.getOrderline(orderline_id);
+            orderline.product = product;
+            this.setLotNumbers();
+            orderline.trigger('change', orderline);
+        },
+
     })
 
     module.Orderline = module.Orderline.extend({
@@ -55,9 +103,12 @@ openerp.product_subproduct = function(instance, local) {
                 var config = {};
                 config.bom = [];
                 for(var i=0, len=product.subproducts.length; i<len; i++) {
-                    config.bom.push({product_id: product.subproducts[i].subproduct_id[0]});
+                    config.bom.push({
+                        product_id: product.subproducts[i].subproduct_id[0],
+                    });
                 }
                 res.config = config;
+                res.force_lot_number = this.lot_number;
             }
 
             return res;
@@ -68,6 +119,8 @@ openerp.product_subproduct = function(instance, local) {
             // super() for Backbone Model
             var res = module.Orderline.__super__.export_for_printing.apply(this, arguments);
             res.subproducts = this.get_product().subproducts;
+            res.lot_number = this.lot_number;
+            res.ean13 = create_ean13(this.lot_number);
             return res;
         }
 
@@ -267,7 +320,6 @@ openerp.product_subproduct = function(instance, local) {
                     }
                 };
             }
-            console.log(subproducts);
             return subproducts;
         },
 

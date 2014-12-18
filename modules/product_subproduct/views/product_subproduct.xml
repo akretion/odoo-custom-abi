@@ -5,7 +5,7 @@
     <data>
         <template id="assets_backend" name="product_subproduct assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
-                <!-- <link rel="stylesheet" href="/web_tests/static/src/css/product_subproduct_tests.css"/> -->
+                <script type="text/javascript" src="/product_subproduct/static/lib/ean13.js"></script>
                 <script type="text/javascript" src="/product_subproduct/static/src/js/product_subproduct.js"></script>
             </xpath>
         </template>

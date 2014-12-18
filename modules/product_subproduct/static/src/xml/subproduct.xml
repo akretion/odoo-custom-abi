@@ -84,6 +84,36 @@
                 </t>
             </t>
         </t>
+        <t t-jquery="receipt" t-operation="append">
+            <t t-set="index" t-value="0"/>
+            <t t-foreach="receipt.orderlines" t-as="line">
+                <t t-if="line.subproducts">
+                    <t t-set="index" t-value="index+1"/>
+                    <cut/>
+                    <div>
+                        <p>Manufacturing order n°</p>
+                        <p><t t-esc="line.lot_number"/></p>
+                        <br/>
+                        <barcode encoding="ean13"><t t-esc="line.ean13"/></barcode>
+                        <br/>
+                        <p>
+                            <left><t t-esc="line.product_name"/> X
+                                <value value-decimals="3" value-autoint="on">
+                                    <t t-esc="line.quantity"/>
+                                </value>
+                            </left>
+                        </p>
+                        <t t-foreach="line.subproducts" t-as="subproduct">
+                            <p>
+                                <left indent="1">
+                                    <t t-esc="subproduct_value.subproduct_display_name"/>
+                                </left>
+                            </p>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
     </t>
 
 </template>
