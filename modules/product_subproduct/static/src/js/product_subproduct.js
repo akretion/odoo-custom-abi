@@ -108,7 +108,9 @@ openerp.product_subproduct = function(instance, local) {
                     });
                 }
                 res.config = config;
-                res.force_lot_number = this.lot_number;
+                if (this.lot_number) {
+                    res.force_lot_number = this.lot_number;
+                }
             }
 
             return res;
@@ -119,8 +121,10 @@ openerp.product_subproduct = function(instance, local) {
             // super() for Backbone Model
             var res = module.Orderline.__super__.export_for_printing.apply(this, arguments);
             res.subproducts = this.get_product().subproducts;
-            res.lot_number = this.lot_number;
-            res.ean13 = create_ean13(this.lot_number);
+            if (this.lot_number) {
+                res.lot_number = this.lot_number;
+                res.ean13 = create_ean13(this.lot_number);
+            }
             return res;
         }
 

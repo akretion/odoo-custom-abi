@@ -19,11 +19,9 @@ openerp.pos_order_load = function(instance, local) {
         },
         show: function(){
             this.$el.removeClass('oe_hidden');
-            console.log('show');
         },
         hide: function(){
             this.$el.addClass('oe_hidden');
-            console.log('hide');
         }
     });
 
