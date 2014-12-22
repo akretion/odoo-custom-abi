@@ -70,9 +70,8 @@
             </span>
         </t>
     </t>
-
     <t t-name="XmlReceipt" t-extend="XmlReceipt">
-        <t t-jquery="line:first-child" t-operation="after">
+        <t t-jquery="line:has(t[t-esc='line.product_name'])" t-operation="after">
             <t t-if="line.subproducts">
                 <t t-foreach="line.subproducts" t-as="subproduct">
                     <line indent="1">
