@@ -5,7 +5,7 @@
         <button class="order-load">Load</button>
     </t>
 
-    <t t-name="ReloadOrderLine">
+    <t t-name="LoadOrderLine">
         <tr class="order-line" t-att-data-order-id="order.id">
             <td><t t-esc="order.pos_reference"/></td>
             <td t-if="order.partner_id"><t t-esc="order.partner_id[1]"/></td>

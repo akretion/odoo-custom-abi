@@ -25,7 +25,6 @@ openerp.pos_order_load = function(instance, local) {
         }
     });
 
-
     module.PosWidget = module.PosWidget.extend({
         build_widgets: function() {
             this._super();
@@ -52,12 +51,8 @@ openerp.pos_order_load = function(instance, local) {
         }
     });
 
-
     module.OrderListScreenWidget = module.ScreenWidget.extend({
         template: 'OrderListScreenWidget',
-        limit: 10,
-        model: 'pos.order',
-        model_line: 'pos.order.line',
         show_leftpane: true,
 
         init: function(parent, options){
@@ -69,9 +64,11 @@ openerp.pos_order_load = function(instance, local) {
             this._super()
             this.$el.find('span.button.back').click(function(){
                 order = self.pos.get('selectedOrder');
+                order.set_client(undefined);
                 order.get('orderLines').reset();
                 self.pos_widget.order_widget.change_selected_order();
                 var ss = self.pos.pos_widget.screen_selector;
+
                 ss.set_current_screen('products');
             });
             this.$el.find('span.button.validate').click(function(){
@@ -98,48 +95,82 @@ openerp.pos_order_load = function(instance, local) {
 
         },
 
+        // to override if necessary
+        add_product_attribute: function(product, key, orderline){
+            return product;
+        },
+
         load_order: function(order_id) {
             var self = this;
-
-            var records = new instance.web.Model(this.model_line)
-                .query([])
-                .filter([['order_id','=',order_id]])
-                .all();
-
-            records.then(function(result){
-                order = self.pos.get('selectedOrder');
+            var posOrderModel = new instance.web.Model('pos.order');
+            return posOrderModel.call('load_order', [order_id])
+            .then(function (result) {
+                var order = self.pos.get('selectedOrder');
                 order.get('orderLines').reset();
-                for (var i=0, len=result.length; i<len; i++) {
-                    var orderline = result[i];
+
+                var partner = self.pos.db.get_partner_by_id(result.partner_id);
+                if (partner){
+                    order.set_client(partner);
+                }
+
+                orderlines = result.orderlines;
+                for (var i=0, len=orderlines.length; i<len; i++) {
+                    var orderline = orderlines[i];
                     var product_id = orderline.product_id[0];
                     var product = self.pos.db.get_product_by_id(product_id);
                     var options = {
                         quantity: orderline.qty,
                         price: orderline.price_unit,
                         discount: orderline.discount,
-                    };
-                    order.addProduct(product, options);
-                }
-            });
+                    }
 
+                    for (key in orderline) {
+                        if(!key.indexOf('product__')) {
+                            product = self.add_product_attribute(
+                                    product, key, orderline
+                            );
+                        }
+                    }
+                    order.addProduct(product, options);
+                    last_orderline = order.getLastOrderline();
+                    last_orderline = jQuery.extend(last_orderline, orderline);
+                }
+
+            }).fail(function (error, event){
+                if(error.code === 200 ){    // Business Logic Error, not a connection problem
+                    self.pos_widget.screen_selector.show_popup('error-traceback',{
+                        message: error.data.message,
+                        comment: error.data.debug
+                    });
+                }
+                console.error('Failed to load order:', order_id);
+                self.pos_widget.screen_selector.show_popup('error',{
+                    message: 'Connection error',
+                    comment: 'Can not execute this action because the POS is currently offline',
+                });
+                event.preventDefault();
+            });
         },
 
         load_orders: function(query) {
             var self = this;
-            var fields = ['pos_reference','partner_id'];
-            var domain = [];
-            if (query) {
-                domain.push(['pos_reference','ilike',query]);
-            }
-
-            var records = new instance.web.Model(this.model)
-                .query(fields)
-                .filter(domain)
-                .limit(this.limit)
-                .all();
-
-            records.then(function(result){
+            var posOrderModel = new instance.web.Model('pos.order');
+            return posOrderModel.call('search_read_orders', [query || ''])
+            .then(function (result) {
                 self.render_list(result);
+            }).fail(function (error, event){
+                if(error.code === 200 ){    // Business Logic Error, not a connection problem
+                    self.pos_widget.screen_selector.show_popup('error-traceback',{
+                        message: error.data.message,
+                        comment: error.data.debug
+                    });
+                }
+                console.error('Failed to load orders:', query);
+                self.pos_widget.screen_selector.show_popup('error',{
+                    message: 'Connection error',
+                    comment: 'Can not execute this action because the POS is currently offline',
+                });
+                event.preventDefault();
             });
         },
 
@@ -155,9 +186,9 @@ openerp.pos_order_load = function(instance, local) {
             var self = this;
             var contents = this.$el[0].querySelector('.order-list-contents');
             contents.innerHTML = "";
-            for(var i = 0, len = Math.min(orders.length, this.limit); i < len; i++){
+            for(var i = 0, len = orders.length; i < len; i++){
                 var order = orders[i];
-                var orderline_html = QWeb.render('ReloadOrderLine',{widget: this, order:orders[i]});
+                var orderline_html = QWeb.render('LoadOrderLine',{widget: this, order:orders[i]});
                 var orderline = document.createElement('tbody');
                 orderline.innerHTML = orderline_html;
                 orderline = orderline.childNodes[1];

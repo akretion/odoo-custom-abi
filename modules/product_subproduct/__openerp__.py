@@ -3,7 +3,7 @@
 #
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2014 Akretion (<http://www.akretion.com>).
-#    
+#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -24,12 +24,20 @@
     'version': '0.1',
     'author': 'Akretion',
     'category': 'Sales Management',
-    'depends': ['base', 'decimal_precision', 'product', 'point_of_sale', 'web', 'pos_product_template'],
+    'depends': [
+        'base',
+        'web',
+        'decimal_precision',
+        'product',
+        'point_of_sale',
+        'pos_product_template',
+        'pos_order_load',
+    ],
     'demo': [],
     'website': 'https://www.akretion.com',
     'description': """
-This module allow to define subproducts of a product
-and display these subproduct on the POS vendor interface
+        This module allow to define subproducts of a product
+        and display these subproduct on the POS vendor interface
     """,
     'data': [
         'security/subproduct_security.xml',
@@ -39,7 +47,7 @@ and display these subproduct on the POS vendor interface
     ],
     'qweb': [
         'static/src/xml/subproduct.xml',
-    ],  
+    ],
     'test': [],
     'installable': True,
     'auto_install': False,

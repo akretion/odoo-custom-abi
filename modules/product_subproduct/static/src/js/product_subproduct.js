@@ -68,6 +68,32 @@ openerp.product_subproduct = function(instance, local) {
 
     })
 
+    module.OrderListScreenWidget = module.OrderListScreenWidget.extend({
+
+        add_product_attribute: function(product, key, orderline){
+            this._super(arguments)
+
+            var product_key = key.split('__')[1];
+            if (product_key == 'subproducts') {
+
+                var subproducts = [];
+                var subproduct_ids = orderline[key];
+                for (var i, len = subproduct_ids.length; i<len; i++) {
+                    var subproduct_id = subproduct_ids[i];
+                    var subproduct = self.pos.db.get_subproduct_by_id(
+                            product.product_tmpl_id,
+                            subproduct_id
+                    );
+                    subproducts.push(subproduct);
+                }
+                product.subproducts = subproducts;
+            }
+
+            return product;
+        },
+
+    });
+
     module.Orderline = module.Orderline.extend({
         get_unit_price: function(){
             var rounding = this.pos.currency.rounding;
@@ -241,8 +267,7 @@ openerp.product_subproduct = function(instance, local) {
         render_orderline: function(orderline){
             self = this;
             var template = 'Orderline';
-            if (!_.isUndefined(orderline.get_product().subproducts) &&
-                orderline.get_product().subproducts.length > 0) {
+            if (!_.isUndefined(orderline.get_product().subproducts)) {
                 template += 'WithSubproducts';
             }
             var el_str  = openerp.qweb.render(template, {widget:this, line:orderline});
