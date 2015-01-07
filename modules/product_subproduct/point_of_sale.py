@@ -25,17 +25,16 @@ from openerp import models, api
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
-    def load_order(self, cr, uid, order_id, context=None):
-        context = context or {}
-        order_dict = super(PosOrder, self).load_order(
-            cr, uid, order_id, context=context)
+    @api.one
+    def load_order(self):
+        order_dict = super(PosOrder, self).load_order()[0]
 
         # inject subproducts in order lines
         orderlines = []
-        product_obj = self.pool.get('product.product')
+        product_obj = self.env['product.product']
         for orderline in order_dict['orderlines']:
             product_id = orderline['product_id'][0]
-            product = product_obj.browse(cr, uid, product_id, context=context)
+            product = product_obj.browse(product_id)
             if product.product_tmpl_id.subproduct_ids:
                 # TODO inject pos/sale order lines saved subproducts (read from
                 # config field)
