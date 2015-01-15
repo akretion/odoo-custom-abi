@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+
+    <t t-extend="PosWidget" t-operation="replace">
+        <t t-jquery=".order-selector" t-operation="append">
+            <span id="do_delivery" class="order-button">Do delivery</span>
+        </t>
+    </t>
+
+    <t t-name="PickingLine">
+        <tr class="picking-line" t-att-data-picking-id="picking.id">
+            <td><t t-esc="picking.name"/></td>
+            <td><t t-if="picking.partner_id" t-esc="picking.partner_id[1]"/></td>
+        </tr>
+    </t>
+
+    <t t-name="PickingListScreenWidget">
+        <div class="pickinglist-screen screen">
+            <div class="screen-content">
+                <section class="top-content">
+                    <span class="button back">
+                        <i class="fa fa-angle-double-left"></i>
+                        Cancel
+                    </span>
+                    <span class="searchbox">
+                        <input placeholder="Search Pickings" />
+                        <span class="search-clear"></span>
+                    </span>
+                    <span class="searchbox"></span>
+                    <span class="button next oe_hidden highlight">
+                        Select Picking
+                        <i class="fa fa-angle-double-right"></i>
+                    </span>
+                </section>
+                <section class="full-content">
+                    <div class="window">
+                        <section class="subwindow collapsed">
+                            <div class="subwindow-container">
+                                <div class="subwindow-container-fix picking-details-contents">
+                                </div>
+                            </div>
+                        </section>
+                        <section class="subwindow">
+                            <div class="subwindow-container">
+                                <div class="subwindow-container-fix touch-scrollable scrollable-y">
+                                    <table class="picking-list">
+                                        <thead>
+                                            <tr>
+                                                <th>Picking name</th>
+                                                <th>Customer</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="picking-list-contents">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+    <t t-name="PickingAdjustLine">
+        <tr class="pickingadjust-line" t-att-data-move-id="move.id">
+            <td class="picking-product"><t t-esc="move.product"/></td>
+            <td>
+                <button class="down" t-att-data-dq="-1" t-att-data-move-id="move.id">&lt;</button>
+                <input type="text" class="move_qty" t-att-id="'move_'+move.id+'_qty'" t-att-value="move.product_qty"/>
+                <button class="up" t-att-data-dq="1" t-att-data-move-id="move.id">&gt;</button>
+            </td>
+        </tr>
+    </t>
+
+    <t t-name="PickingAdjustScreenWidget">
+        <div class="pickingadjust-screen screen">
+            <div class="screen-content">
+                <section class="top-content">
+                    <span class="button back">
+                        <i class="fa fa-angle-double-left"></i>
+                        Cancel
+                    </span>
+                    <span class="button validate back">
+                        <i class="fa fa-angle-double-left"></i>
+                        Validate
+                    </span>
+                </section>
+                <section class="full-content">
+                    <div class="window">
+                        <section class="subwindow collapsed">
+                            <div class="subwindow-container">
+                                <div class="subwindow-container-fix pickingadjust-details-contents">
+                                </div>
+                            </div>
+                        </section>
+                        <section class="subwindow">
+                            <div class="subwindow-container">
+                                <div class="subwindow-container-fix touch-scrollable scrollable-y">
+                                    <table class="pickingadjust-list">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Quantity delivered</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="pickingadjust-list-contents">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+
+</template>
