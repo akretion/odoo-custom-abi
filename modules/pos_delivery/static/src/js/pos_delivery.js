@@ -136,14 +136,14 @@ openerp.pos_delivery = function(instance, local) {
                 pickingline.innerHTML = pickingline_html;
                 pickingline = pickingline.childNodes[1];
 
-                var handler = (function(id) {
+                var handler = (function(picking) {
                     return function() {
                         var ss = self.pos.pos_widget.screen_selector;
                         ss.set_current_screen('pickingadjust', {
-                            picking_id: id,
+                            picking: picking,
                         });
                     };
-                })(picking.id);
+                })(picking);
 
                 pickingline.addEventListener('click', handler);
                 contents.appendChild(pickingline);
@@ -183,19 +183,19 @@ openerp.pos_delivery = function(instance, local) {
             this._super();
             var ss = this.pos.pos_widget.screen_selector;
             if (ss.get_current_screen() == 'pickingadjust') {
-                var picking_id = ss.get_current_screen_param('picking_id')
-                if (picking_id !== undefined) {
-                    this.load_moves(picking_id);
+                var picking = ss.get_current_screen_param('picking')
+                if (picking !== undefined) {
+                    this.load_moves(picking);
                 }
             }
         },
 
-        load_moves: function(picking_id) {
+        load_moves: function(picking) {
             var self = this;
             var stockMoveModel = new instance.web.Model('stock.move');
-            return stockMoveModel.call('search_read_moves', [picking_id])
+            return stockMoveModel.call('search_read_moves', [picking.id])
             .then(function (result) {
-                self.render_list(result);
+                self.render_list(picking, result);
             }).fail(function (error, event){
                 if (error.code === 200) {
                     // Business Logic Error, not a connection problem
@@ -216,8 +216,11 @@ openerp.pos_delivery = function(instance, local) {
             });
         },
 
-        render_list: function(moves){
+        render_list: function(picking, moves){
             var self = this;
+            var header_content = this.$el[0].querySelector('.pickingadjust-header');
+            header_content.innerHTML = picking.name + ' ' + picking.partner_id[1];
+
             var contents = this.$el[0].querySelector('.pickingadjust-list-contents');
             contents.innerHTML = "";
             for (var i = 0, len = moves.length; i < len; i++){

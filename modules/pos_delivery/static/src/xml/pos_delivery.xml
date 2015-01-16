@@ -96,6 +96,7 @@
                         <section class="subwindow">
                             <div class="subwindow-container">
                                 <div class="subwindow-container-fix touch-scrollable scrollable-y">
+                                    <h2 class="pickingadjust-header"></h2>
                                     <table class="pickingadjust-list">
                                         <thead>
                                             <tr>

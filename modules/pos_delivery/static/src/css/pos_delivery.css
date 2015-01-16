@@ -75,6 +75,7 @@
 
 .pos .pickingadjust-screen .pickingadjust-list th {
     padding: 0px 8px;
+    font-size: 2em;
 }
 
 .pos .pickingadjust-screen .pickingadjust-list tr{
@@ -115,6 +116,7 @@
 {
     padding: 10px;
     font-size: 2em;
+    text-align: center;
 }
 
 .pos .pickingadjust-line .move_qty{
