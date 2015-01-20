@@ -182,14 +182,14 @@ openerp.pos_delivery = function(instance, local) {
                 var ss = self.pos.pos_widget.screen_selector;
                 var picking = ss.get_current_screen_param('picking')
                 ss.set_current_screen('products');
-                var moves = {}
-                self.$el.find('input[id^=move_qty_]').each(function() {
+                var operations = {}
+                self.$el.find('input[id^=operation_qty_]').each(function() {
                     var input_el = $(this);
-                    var move_id = input_el.attr('id').split('move_qty_')[1];
-                    var move = {};
-                    moves[move_id] = parseFloat(input_el.val());
+                    var operation_id = input_el.attr('id').split('operation_qty_')[1];
+                    var operation = {};
+                    operations[operation_id] = parseFloat(input_el.val());
                 });
-                return stockPickingModel.call('do_detailed_transfer', [picking.id, moves]);
+                return stockPickingModel.call('do_detailed_transfer', [picking.id, operations]);
             });
         },
 
@@ -199,15 +199,15 @@ openerp.pos_delivery = function(instance, local) {
             if (ss.get_current_screen() == 'pickingadjust') {
                 var picking = ss.get_current_screen_param('picking')
                 if (picking !== undefined) {
-                    this.load_moves(picking);
+                    this.load_operations(picking);
                 }
             }
         },
 
-        load_moves: function(picking) {
+        load_operations: function(picking) {
             var self = this;
-            var stockMoveModel = new instance.web.Model('stock.move');
-            return stockMoveModel.call('search_read_moves', [picking.id])
+            var stockPackOperationModel = new instance.web.Model('stock.pack.operation');
+            return stockPackOperationModel.call('search_read_operations', [picking.id])
             .then(function (result) {
                 self.render_list(picking, result);
             }).fail(function (error, event){
@@ -220,7 +220,7 @@ openerp.pos_delivery = function(instance, local) {
                         }
                     );
                 }
-                console.error('Failed to load moves:', query);
+                console.error('Failed to load operations:', picking.id);
                 self.pos_widget.screen_selector.show_popup('error',{
                     message: 'Connection error',
                     comment: 'Can not execute this action because the POS \
@@ -230,30 +230,30 @@ openerp.pos_delivery = function(instance, local) {
             });
         },
 
-        render_list: function(picking, moves){
+        render_list: function(picking, operations){
             var self = this;
             var header_content = this.$el[0].querySelector('.pickingadjust-header');
             header_content.innerHTML = picking.name + ' ' + picking.partner_id[1];
 
             var contents = this.$el[0].querySelector('.pickingadjust-list-contents');
             contents.innerHTML = "";
-            for (var i = 0, len = moves.length; i < len; i++){
-                var move = moves[i];
-                var moveline_html = QWeb.render('PickingAdjustLine',
-                    {widget: this, move:move});
-                var moveline = document.createElement('tbody');
-                moveline.innerHTML = moveline_html;
-                moveline = moveline.childNodes[1];
+            for (var i = 0, len = operations.length; i < len; i++){
+                var operation = operations[i];
+                var operationline_html = QWeb.render('PickingAdjustLine',
+                    {widget: this, operation:operation});
+                var operationline = document.createElement('tbody');
+                operationline.innerHTML = operationline_html;
+                operationline = operationline.childNodes[1];
 
-                var update_qty_handler = (function(move_line, move) {
+                var update_qty_handler = (function(operation_line, operation) {
                     return function() {
-                        var move_id = parseInt(this.dataset['moveId']);
+                        var operation_id = parseInt(this.dataset['operationId']);
                         var dq = parseInt(this.dataset['dq']);
-                        var field_qty = move_line.querySelector('#move_qty_'+move_id);
+                        var field_qty = operation_line.querySelector('#operation_qty_'+operation_id);
                         var qty_value = field_qty.value;
                         var qty = isNaN(parseInt(qty_value)) ? 0 : parseInt(qty_value);
                         if (dq > 0) {
-                            if ((qty + dq) <= move.product_qty) {
+                            if ((qty + dq) <= operation.product_qty) {
                                 qty += dq;
                             }
                         } else {
@@ -264,14 +264,14 @@ openerp.pos_delivery = function(instance, local) {
                         qty_value = qty.toString();
                         field_qty.value = qty_value;
                     }
-                })(moveline, move);
+                })(operationline, operation);
 
-                moveline.querySelector('button.down').addEventListener('click', update_qty_handler);
-                moveline.querySelector('button.up').addEventListener('click', update_qty_handler);
-                moveline.querySelector('input').addEventListener('change', function() {
+                operationline.querySelector('button.down').addEventListener('click', update_qty_handler);
+                operationline.querySelector('button.up').addEventListener('click', update_qty_handler);
+                operationline.querySelector('input').addEventListener('change', function() {
                     this.value = isNaN(parseInt(this.value)) ? 0 : parseInt(this.value);
                 });
-                contents.appendChild(moveline);
+                contents.appendChild(operationline);
             }
         },
     });

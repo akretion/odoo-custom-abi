@@ -26,36 +26,40 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     @api.one
-    def do_detailed_transfer(self, moves):
-        self.do_prepare_partial([self.id])
-
-        move_obj = self.env['stock.move']
-        move_ids = [ long(m) for m in moves.keys() ]
-        for move in move_obj.browse(move_ids):
-            qty = moves[str(move.id)]
-            print move.product_id.display_name
-            print qty
+    def do_detailed_transfer(self, operations):
+        op_obj = self.env['stock.pack.operation']
+        op_ids = [ long(op) for op in operations.keys() ]
+        for op in op_obj.browse(op_ids):
+            op.product_qty = operations[str(op.id)]
         self.do_transfer()
 
     @api.model
     def search_read_pickings(self, query):
         if (query):
-            condition = ['|',
+            condition = [
+                         ('state', '=', 'assigned'),
+                        '|',
                          ('partner_id', 'ilike', query),
                          ('name', 'ilike', query),
                          ]
         else:
-            condition = []
+            condition = [('state', '=', 'assigned')]
         fields = ['id', 'name', 'partner_id']
         return self.search_read(condition, fields, limit=10)
 
 
-class StockMove(models.Model):
-    _inherit = 'stock.move'
+class StockPackOperation(models.Model):
+    _inherit = 'stock.pack.operation'
 
     @api.model
-    def search_read_moves(self, query):
-        condition = [('picking_id', '=', query)]
+    def search_read_operations(self, picking_id):
+
+        condition = [
+            ('picking_id', '=', picking_id),
+        ]
+        picking = self.env['stock.picking'].browse(picking_id)
+        if not picking.pack_operation_ids:
+            picking.do_prepare_partial()
         fields = ['id', 'product_id', 'product_qty']
         res = self.search_read(condition, fields)
         product_ids = [r['product_id'][0] for r in res]
