@@ -66,7 +66,7 @@
             <td class="picking-product"><t t-esc="move.product"/></td>
             <td>
                 <button class="down" t-att-data-dq="-1" t-att-data-move-id="move.id">&lt;</button>
-                <input type="text" class="move_qty" t-att-id="'move_'+move.id+'_qty'" t-att-value="move.product_qty"/>
+                <input type="text" class="move_qty" t-att-id="'move_qty_'+move.id" t-att-value="move.product_qty"/>
                 <button class="up" t-att-data-dq="1" t-att-data-move-id="move.id">&gt;</button>
             </td>
         </tr>

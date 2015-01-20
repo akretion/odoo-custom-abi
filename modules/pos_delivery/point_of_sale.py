@@ -25,6 +25,18 @@ from openerp import models, api
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    @api.one
+    def do_detailed_transfer(self, moves):
+        self.do_prepare_partial([self.id])
+
+        move_obj = self.env['stock.move']
+        move_ids = [ long(m) for m in moves.keys() ]
+        for move in move_obj.browse(move_ids):
+            qty = moves[str(move.id)]
+            print move.product_id.display_name
+            print qty
+        self.do_transfer()
+
     @api.model
     def search_read_pickings(self, query):
         if (query):

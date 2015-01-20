@@ -177,6 +177,20 @@ openerp.pos_delivery = function(instance, local) {
                 var ss = self.pos.pos_widget.screen_selector;
                 ss.set_current_screen('products');
             });
+            this.$el.find('span.button.validate').click(function(){
+                var stockPickingModel = new instance.web.Model('stock.picking');
+                var ss = self.pos.pos_widget.screen_selector;
+                var picking = ss.get_current_screen_param('picking')
+                ss.set_current_screen('products');
+                var moves = {}
+                self.$el.find('input[id^=move_qty_]').each(function() {
+                    var input_el = $(this);
+                    var move_id = input_el.attr('id').split('move_qty_')[1];
+                    var move = {};
+                    moves[move_id] = parseFloat(input_el.val());
+                });
+                return stockPickingModel.call('do_detailed_transfer', [picking.id, moves]);
+            });
         },
 
         show: function() {
@@ -235,7 +249,7 @@ openerp.pos_delivery = function(instance, local) {
                     return function() {
                         var move_id = parseInt(this.dataset['moveId']);
                         var dq = parseInt(this.dataset['dq']);
-                        var field_qty = move_line.querySelector('#move_'+move_id+'_qty');
+                        var field_qty = move_line.querySelector('#move_qty_'+move_id);
                         var qty_value = field_qty.value;
                         var qty = isNaN(parseInt(qty_value)) ? 0 : parseInt(qty_value);
                         if (dq > 0) {
