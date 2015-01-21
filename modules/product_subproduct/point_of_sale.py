@@ -26,58 +26,20 @@ from openerp import models, api
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
-    @api.model
-    def pos_order_filter(self, orders_dict):
-        res = []
-        for order_dict in orders_dict:
-            order = self.env['sale.order'].browse(order_dict['id'])
-            pos_order = True
-            for order_line in order.order_line:
-                if not order_line.product_id.available_in_pos:
-                    pos_order = False
-                    break
-            if pos_order:
-                res.append(order_dict)
-
-        return res
-
-    @api.model
-    def search_read_orders(self, query):
-        condition = [
-            ('state', '=', 'draft'),
-            '|',
-            ('name', 'ilike', query),
-            ('partner_id', 'ilike', query)
-        ]
-        fields = ['name', 'partner_id']
-        sale_obj = self.env['sale.order']
-        res = sale_obj.search_read(condition, fields, limit=10)
-        return self.pos_order_filter(res)
-
     @api.one
     def load_order(self):
-        condition = [('order_id', '=', self.id)]
-        fields = ['product_id', 'price_unit', 'product_uom_qty', 'discount']
-        lines = self.env['sale.order.line'].search_read(condition, fields)
+        order_dict = super(PosOrder, self).load_order()[0]
+
+        # inject subproducts in order lines
         orderlines = []
-        for line in lines:
-            line['qty'] = line.pop('product_uom_qty')
-            product_id = line['product_id'][0]
-            product = self.env['product.product'].browse(product_id)
-            if not product.available_in_pos:
-                raise Warning('''
-                    This order can\'t be loaded because it contains
-                    product not available on the POS
-                ''')
+        product_obj = self.env['product.product']
+        for orderline in order_dict['orderlines']:
+            product_id = orderline['product_id'][0]
+            product = product_obj.browse(product_id)
             if product.product_tmpl_id.subproduct_ids:
                 # TODO inject pos/sale order lines saved subproducts (read from
                 # config field)
-                line.update({'product__subproducts': []})
-            orderlines.append(line)
-
-        order_dict = {
-            'partner_id': self.partner_id and self.partner_id.id or False,
-            'orderlines': orderlines
-        }
-
+                orderline.update({'product__subproducts': []})
+            orderlines.append(orderline)
+        order_dict['orderlines'] = orderlines
         return order_dict

@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <template>
 
-    <t t-name="LoadOrderLine" t-extend="LoadOrderLine">
-        <t t-jquery="td:first" t-operation="replace">
-            <td><t t-esc="order.name"/></td>
-        </t>
-    </t>
-
     <t t-name="OrderlineWithSubproducts" t-extend="Orderline">
         <t t-jquery="span.product-name" t-operation="append">
             <button>Configure</button>
