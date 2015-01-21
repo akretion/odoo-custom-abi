@@ -71,8 +71,7 @@ openerp.product_subproduct = function(instance, local) {
     module.OrderListScreenWidget = module.OrderListScreenWidget.extend({
 
         add_product_attribute: function(product, key, orderline){
-            this._super(arguments)
-
+            this._super(arguments);
             var product_key = key.split('__')[1];
             if (product_key == 'subproducts') {
 
