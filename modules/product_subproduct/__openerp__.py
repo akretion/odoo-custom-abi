@@ -32,6 +32,7 @@
         'point_of_sale',
         'pos_product_template',
         'pos_sale_order_load',
+        'sale_force_lot_number',
     ],
     'demo': [],
     'website': 'https://www.akretion.com',
