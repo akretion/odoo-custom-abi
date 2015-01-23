@@ -65,9 +65,13 @@
         <tr class="pickingadjust-line" t-att-data-operation-id="operation.id">
             <td class="picking-product"><t t-esc="operation.product"/></td>
             <td>
-                <button class="down" t-att-data-dq="-1" t-att-data-operation-id="operation.id">&lt;</button>
+                <button class="down" t-att-data-dq="-1" t-att-data-operation-id="operation.id">
+                    <i class="fa fa-minus"></i>
+                </button>
                 <input type="text" class="operation_qty" t-att-id="'operation_qty_'+operation.id" t-att-value="operation.product_qty"/>
-                <button class="up" t-att-data-dq="1" t-att-data-operation-id="operation.id">&gt;</button>
+                <button class="up" t-att-data-dq="1" t-att-data-operation-id="operation.id">
+                    <i class="fa fa-plus"></i>
+                </button>
             </td>
         </tr>
     </t>
@@ -80,8 +84,7 @@
                         <i class="fa fa-angle-double-left"></i>
                         Cancel
                     </span>
-                    <span class="button validate back">
-                        <i class="fa fa-angle-double-left"></i>
+                    <span class="button validate">
                         Validate
                     </span>
                 </section>
