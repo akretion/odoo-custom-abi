@@ -19,27 +19,27 @@
 #
 ##############################################################################
 
+{
+    'name': 'MRP product operation',
+    'version': '0.1',
+    'author': 'Akretion',
+    'depends': [
+        'base',
+        'product',
+    ],
+    'demo': [],
+    'website': 'https://www.akretion.com',
+    'description': """
+        This module allow to define operation on product
+    """,
+    'data': [
+        'product_view.xml',
+    ],
+    'qweb': [
+    ],
+    'test': [],
+    'installable': True,
+    'auto_install': False,
+}
 
-from openerp import models, api
-
-
-class PosOrder(models.Model):
-    _inherit = 'pos.order'
-
-    @api.one
-    def load_order(self):
-        order_dict = super(PosOrder, self).load_order()[0]
-
-        # inject subproducts in order lines
-        orderlines = []
-        product_obj = self.env['product.product']
-        for orderline in order_dict['orderlines']:
-            product_id = orderline['product_id'][0]
-            product = product_obj.browse(product_id)
-            if product.product_tmpl_id.subproduct_ids:
-                # TODO inject pos/sale order lines saved subproducts (read from
-                # config field)
-                orderline.update({'product__subproducts': []})
-            orderlines.append(orderline)
-        order_dict['orderlines'] = orderlines
-        return order_dict
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

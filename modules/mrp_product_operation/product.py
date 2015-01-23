@@ -19,39 +19,15 @@
 #
 ##############################################################################
 
-{
-    'name': 'Subproduct',
-    'version': '0.1',
-    'author': 'Akretion',
-    'category': 'Sales Management',
-    'depends': [
-        'base',
-        'web',
-        'decimal_precision',
-        'product',
-        'point_of_sale',
-        'pos_product_template',
-        'pos_sale_order_load',
-        'sale_force_lot_number',
-    ],
-    'demo': [],
-    'website': 'https://www.akretion.com',
-    'description': """
-        This module allow to define subproducts of a product
-        and display these subproduct on the POS vendor interface
-    """,
-    'data': [
-        'security/subproduct_security.xml',
-        'security/ir.model.access.csv',
-        'product_view.xml',
-        'views/product_subproduct.xml',
-    ],
-    'qweb': [
-        'static/src/xml/subproduct.xml',
-    ],
-    'test': [],
-    'installable': True,
-    'auto_install': False,
-}
+import logging
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+from openerp import models, fields, api, _
+import openerp.addons.decimal_precision as dp
+
+_logger = logging.getLogger(__name__)
+
+
+class product_template(models.Model):
+    _inherit = 'product.template'
+
+    operation_ids = fields.Many2many('product.product', string=u'Opérations')
