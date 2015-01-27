@@ -308,6 +308,12 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             var operation;
             var operations = [];
             var product = this.get_product_by_id(product_id);
+
+            if (_.isUndefined(product) ||
+                _.isUndefined(product.operation_ids)) {
+                return operations;
+            }
+
             for (var i=0, len=product.operation_ids.length; i<len; i++) {
                 var operation_id = product.operation_ids[i];
                 var operation = this.get_product_by_id(operation_id);
