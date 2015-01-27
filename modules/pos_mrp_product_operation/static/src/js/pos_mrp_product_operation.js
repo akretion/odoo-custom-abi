@@ -135,6 +135,7 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             this._super();
         },
 
+
         show: function(options){
 
             var options = options || {};
@@ -143,7 +144,9 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             this._super();
 
             this.product = options.product;
-            this.operations = options.operations;
+            this.categories = self.pos.db.get_categories(
+                options.operations || []
+            );
 
             this.appendTo(this.pos_widget.$el);
             this.renderElement();
@@ -160,7 +163,8 @@ openerp.pos_mrp_product_operation = function(instance, local) {
                 for (var i=0, len=selected.length; i<len; i++) {
                     var operation = selected[i];
                     this.$('select.select-operation')
-                    .children()
+                    .children('optgroup')
+                    .children('option')
                     .filter('[value="' + operation.id + '"]')
                     .not(':selected')
                     .attr("hidden", "hidden");
@@ -179,13 +183,15 @@ openerp.pos_mrp_product_operation = function(instance, local) {
                         last_line.clone(true).insertAfter(last_line);
                     };
                     self.$('select.select-operation').not($(this))
-                        .children()
+                        .children('optgroup')
+                        .children('option')
                         .filter('[value="' + this.value + '"]')
                         .attr("hidden", "hidden");
                 };
                 if(previous != 'choice'){
                     self.$('select.select-operation')
-                        .children()
+                        .children('optgroup')
+                        .children('option')
                         .filter('[value="'+ previous +'"]')
                         .removeProp('hidden');
                 };
@@ -200,7 +206,8 @@ openerp.pos_mrp_product_operation = function(instance, local) {
                 if (n > 1) {
                     var select = $(this).closest('ul').find('.select-operation');
                     self.$('select.select-operation')
-                        .children()
+                        .children('optgroup')
+                        .children('option')
                         .filter('[value="' + select.val() + '"]')
                         .removeProp('hidden');
                     $(this).closest('ul').remove();
@@ -301,6 +308,12 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             var operation;
             var operations = [];
             var product = this.get_product_by_id(product_id);
+
+            if (_.isUndefined(product) ||
+                _.isUndefined(product.operation_ids)) {
+                return operations;
+            }
+
             for (var i=0, len=product.operation_ids.length; i<len; i++) {
                 var operation_id = product.operation_ids[i];
                 var operation = this.get_product_by_id(operation_id);
@@ -309,6 +322,41 @@ openerp.pos_mrp_product_operation = function(instance, local) {
                 };
             }
             return operations;
+        },
+
+        get_categories: function(operations) {
+            var categories = [];
+            var operation;
+            for(var i=0, len=operations.length; i < len; i++) {
+                operation = operations[i];
+                categ_id = operation.pos_categ_id[0];
+                if (categ_id in categories) {
+                    categories[categ_id].operations.push(operation);
+                } else {
+                    category = {
+                        name: operation.pos_categ_id[1],
+                        operations: [operation],
+                    };
+                    categories[categ_id] = category;
+                }
+            }
+
+            var categories = Object.keys(categories).map(function(key){
+                return categories[key];
+            });
+
+            for(var i=0, len=categories.length; i < len; i++) {
+                var category = categories[i];
+                category.operations.sort(function(a, b) {
+                    return a.display_name.localeCompare(b.display_name) > 0;
+                })
+            }
+
+            categories.sort(function(a, b) {
+                return a.name.localeCompare(b.name) > 0;
+            });
+
+            return categories;
         },
 
     });

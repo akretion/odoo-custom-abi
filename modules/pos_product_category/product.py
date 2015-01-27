@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2014 Akretion (<http://www.akretion.com>).
+#    Copyright (C) 2015-TODAY Akretion (<http://www.akretion.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,36 +19,13 @@
 #
 ##############################################################################
 
-{
-    'name': 'POS helper',
-    'version': '0.1',
-    'author': 'Akretion',
-    'category': 'Sales Management',
-    'depends': [
-        'base',
-        'web',
-        'decimal_precision',
-        'product',
-        'point_of_sale',
-        'pos_product_category',
-        'pos_product_template',
-        'pos_sale_order_load',
-        'pos_mrp_product_operation',
-        'sale_force_lot_number',
-    ],
-    'demo': [],
-    'website': 'https://www.akretion.com',
-    'description': """
-        POS glue code
-    """,
-    'data': [
-        'views/pos_helper.xml',
-    ],
-    'qweb': [
-    ],
-    'test': [],
-    'installable': True,
-    'auto_install': False,
-}
+from openerp import tools, SUPERUSER_ID
+from openerp import models, fields, api, _
+from openerp.exceptions import Warning
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    pos_categ_id = fields.Many2one('product.category',
+                                   store=True, related='categ_id')

@@ -23,6 +23,8 @@
 from openerp.osv import fields, orm
 import csv
 import re
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class product_template(orm.Model):
@@ -54,6 +56,7 @@ class product_product(orm.Model):
         categ_obj = self.pool['product.category']
         line_obj = self.pool['product.attribute.line']
         data_obj = self.pool['ir.model.data']
+        _logger.info('Start import products')
         file_count = csv.DictReader(import_file, delimiter=",")
         total_row = len(list(file_count))
         import_file.seek(0)
@@ -139,98 +142,97 @@ class product_product(orm.Model):
             default_code = decoded_row['Code']
             product_ids = self.search(
                 cr, uid, [('default_code', '=', default_code)], context=context)
+            value_ids = []
+            if gamme_1_id and decoded_row['Gamme1']:
+                value_1_ids = value_obj.search(
+                    cr, uid,
+                    [('name', '=', decoded_row['Gamme1']),
+                        ('attribute_id', '=', gamme_1_id)],
+                    context=context)
+                if not value_1_ids:
+                    value_1_id = value_obj.create(
+                        cr, uid, {'name': decoded_row['Gamme1'],
+                                    'attribute_id': gamme_1_id},
+                        context=context)
+                    line_obj.write(
+                        cr, uid, line_1_id, {'value_ids': [(4, value_1_id)]},
+                        context=context)
+                    value_ids.append((4, value_1_id))
+                else:
+                    line_1_ids = line_obj.search(
+                        cr, uid, [('id', '=', line_1_id),
+                                    ('value_ids', 'in', [value_1_ids[0]])],
+                        context=context)
+                    if not line_1_ids:
+                        line_obj.write(
+                            cr, uid, line_1_id,
+                            {'value_ids': [(4, value_1_ids[0])]},
+                            context=context)
+                    value_ids.append((4, value_1_ids[0]))
+            if gamme_2_id and decoded_row['Gamme2']:
+                value_2_ids = value_obj.search(
+                    cr, uid,
+                    [('name', '=', decoded_row['Gamme2']),
+                        ('attribute_id', '=', gamme_2_id)],
+                    context=context)
+                if not value_2_ids:
+                    value_2_id = value_obj.create(
+                        cr, uid, {'name': decoded_row['Gamme2'],
+                                    'attribute_id': gamme_2_id},
+                        context=context)
+                    line_obj.write(
+                        cr, uid, line_2_id, {'value_ids': [(4, value_2_id)]},
+                        context=context)
+                    value_ids.append((4, value_2_id))
+                else:
+                    line_2_ids = line_obj.search(
+                        cr, uid, [('id', '=', line_2_id),
+                                    ('value_ids', 'in', [value_2_ids[0]])],
+                        context=context)
+                    if not line_2_ids:
+                        line_obj.write(
+                            cr, uid, line_2_id,
+                            {'value_ids': [(4, value_2_ids[0])]},
+                            context=context)
+                    value_ids.append((4, value_2_ids[0]))
+            if gamme_3_id and decoded_row['Gamme3']:
+                value_3_ids = value_obj.search(
+                    cr, uid,
+                    [('name', '=', decoded_row['Gamme3']),
+                    ('attribute_id', '=', gamme_3_id)],
+                    context=context)
+                if not value_3_ids:
+                    value_3_id = value_obj.create(
+                        cr, uid, {'name': decoded_row['Gamme3'],
+                                    'attribute_id': gamme_3_id},
+                        context=context)
+                    line_obj.write(
+                        cr, uid, line_3_id, {'value_ids': [(4, value_3_id)]},
+                        context=context)
+                    value_ids.append((4, value_3_id))
+                else:
+                    line_3_ids = line_obj.search(
+                        cr, uid, [('id', '=', line_3_id),
+                                    ('value_ids', 'in', [value_3_ids[0]])],
+                        context=context)
+                    if not line_3_ids:
+                        line_obj.write(
+                            cr, uid, line_3_id,
+                            {'value_ids': [(4, value_3_ids[0])]},
+                            context=context)
+                    value_ids.append((4, value_3_ids[0]))
+            product_vals = {
+                'product_tmpl_id': template_id,
+                'default_code': default_code,
+                'attribute_value_ids': value_ids,
+                'from_magento': True,
+                }
             if not product_ids:
-                value_ids = []
-                if gamme_1_id and decoded_row['Gamme1']:
-                    value_1_ids = value_obj.search(
-                        cr, uid,
-                        [('name', '=', decoded_row['Gamme1']),
-                         ('attribute_id', '=', gamme_1_id)],
-                        context=context)
-                    if not value_1_ids:
-                        value_1_id = value_obj.create(
-                            cr, uid, {'name': decoded_row['Gamme1'],
-                                      'attribute_id': gamme_1_id},
-                            context=context)
-                        line_obj.write(
-                            cr, uid, line_1_id, {'value_ids': [(4, value_1_id)]},
-                            context=context)
-                        value_ids.append((4, value_1_id))
-                    else:
-                        line_1_ids = line_obj.search(
-                            cr, uid, [('id', '=', line_1_id),
-                                      ('value_ids', 'in', [value_1_ids[0]])],
-                            context=context)
-                        if not line_1_ids:
-                            line_obj.write(
-                                cr, uid, line_1_id,
-                                {'value_ids': [(4, value_1_ids[0])]},
-                                context=context)
-                        value_ids.append((4, value_1_ids[0]))
-                if gamme_2_id and decoded_row['Gamme2']:
-                    value_2_ids = value_obj.search(
-                        cr, uid,
-                        [('name', '=', decoded_row['Gamme2']),
-                         ('attribute_id', '=', gamme_2_id)],
-                        context=context)
-                    if not value_2_ids:
-                        value_2_id = value_obj.create(
-                            cr, uid, {'name': decoded_row['Gamme2'],
-                                      'attribute_id': gamme_2_id},
-                            context=context)
-                        line_obj.write(
-                            cr, uid, line_2_id, {'value_ids': [(4, value_2_id)]},
-                            context=context)
-                        value_ids.append((4, value_2_id))
-                    else:
-                        line_2_ids = line_obj.search(
-                            cr, uid, [('id', '=', line_2_id),
-                                      ('value_ids', 'in', [value_2_ids[0]])],
-                            context=context)
-                        if not line_2_ids:
-                            line_obj.write(
-                                cr, uid, line_2_id,
-                                {'value_ids': [(4, value_2_ids[0])]},
-                                context=context)
-                        value_ids.append((4, value_2_ids[0]))
-                if gamme_3_id and decoded_row['Gamme3']:
-                    value_3_ids = value_obj.search(
-                        cr, uid,
-                        [('name', '=', decoded_row['Gamme3']),
-                        ('attribute_id', '=', gamme_3_id)],
-                        context=context)
-                    if not value_3_ids:
-                        value_3_id = value_obj.create(
-                            cr, uid, {'name': decoded_row['Gamme3'],
-                                      'attribute_id': gamme_3_id},
-                            context=context)
-                        line_obj.write(
-                            cr, uid, line_3_id, {'value_ids': [(4, value_3_id)]},
-                            context=context)
-                        value_ids.append((4, value_3_id))
-                    else:
-                        line_3_ids = line_obj.search(
-                            cr, uid, [('id', '=', line_3_id),
-                                      ('value_ids', 'in', [value_3_ids[0]])],
-                            context=context)
-                        if not line_3_ids:
-                            line_obj.write(
-                                cr, uid, line_3_id,
-                                {'value_ids': [(4, value_3_ids[0])]},
-                                context=context)
-                        value_ids.append((4, value_3_ids[0]))
-                product_vals = {
-                    'product_tmpl_id': template_id,
-                    'default_code': default_code,
-                    'attribute_value_ids': value_ids,
-                    'from_magento': True,
-                    }
                 product_id = self.create(cr, uid, product_vals, context=context)
             else:
-#TODO 
-                print 'todo'
-            print "%s/%s" % (current_row, total_row)
-        print no_categ
+                self.write(cr, uid, product_ids[0], product_vals, context=context)
+            _logger.info('Line %s/%s', current_row, total_row)
+        _logger.info('End import products with errors: no categ : %s', no_categ)
         return True
 
     def _import_product_normal(self, cr, uid, import_file, gamme_1_id, gamme_2_id, gamme_3_id, context=None):
@@ -240,6 +242,7 @@ class product_product(orm.Model):
         categ_obj = self.pool['product.category']
         line_obj = self.pool['product.attribute.line']
         data_obj = self.pool['ir.model.data']
+        _logger.info('Start import products')
         file_count = csv.DictReader(import_file, delimiter=";")
         total_row = len(list(file_count))
         import_file.seek(0)
@@ -325,96 +328,94 @@ class product_product(orm.Model):
             default_code = decoded_row['Code']
             product_ids = self.search(
                 cr, uid, [('default_code', '=', default_code)], context=context)
+            value_ids = []
+            if gamme_1_id and decoded_row['Gamme 1']:
+                value_1_ids = value_obj.search(
+                    cr, uid,
+                    [('name', '=', decoded_row['Gamme 1']),
+                        ('attribute_id', '=', gamme_1_id)],
+                    context=context)
+                if not value_1_ids:
+                    value_1_id = value_obj.create(
+                        cr, uid, {'name': decoded_row['Gamme 1'],
+                                    'attribute_id': gamme_1_id},
+                        context=context)
+                    line_obj.write(
+                        cr, uid, line_1_id, {'value_ids': [(4, value_1_id)]},
+                        context=context)
+                    value_ids.append((4, value_1_id))
+                else:
+                    line_1_ids = line_obj.search(
+                        cr, uid, [('id', '=', line_1_id),
+                                    ('value_ids', 'in', [value_1_ids[0]])],
+                        context=context)
+                    if not line_1_ids:
+                        line_obj.write(
+                            cr, uid, line_1_id,
+                            {'value_ids': [(4, value_1_ids[0])]},
+                            context=context)
+                    value_ids.append((4, value_1_ids[0]))
+            if gamme_2_id and decoded_row['Gamme 2']:
+                value_2_ids = value_obj.search(
+                    cr, uid,
+                    [('name', '=', decoded_row['Gamme 2']),
+                        ('attribute_id', '=', gamme_2_id)],
+                    context=context)
+                if not value_2_ids:
+                    value_2_id = value_obj.create(
+                        cr, uid, {'name': decoded_row['Gamme 2'],
+                                    'attribute_id': gamme_2_id},
+                        context=context)
+                    line_obj.write(
+                        cr, uid, line_2_id, {'value_ids': [(4, value_2_id)]},
+                        context=context)
+                    value_ids.append((4, value_2_id))
+                else:
+                    line_2_ids = line_obj.search(
+                        cr, uid, [('id', '=', line_2_id),
+                                    ('value_ids', 'in', [value_2_ids[0]])],
+                        context=context)
+                    if not line_2_ids:
+                        line_obj.write(
+                            cr, uid, line_2_id,
+                            {'value_ids': [(4, value_2_ids[0])]},
+                            context=context)
+                    value_ids.append((4, value_2_ids[0]))
+            if gamme_3_id and decoded_row['Gamme 3']:
+                value_3_ids = value_obj.search(
+                    cr, uid,
+                    [('name', '=', decoded_row['Gamme 3']),
+                    ('attribute_id', '=', gamme_3_id)],
+                    context=context)
+                if not value_3_ids:
+                    value_3_id = value_obj.create(
+                        cr, uid, {'name': decoded_row['Gamme 3'],
+                                    'attribute_id': gamme_3_id},
+                        context=context)
+                    line_obj.write(
+                        cr, uid, line_3_id, {'value_ids': [(4, value_3_id)]},
+                        context=context)
+                    value_ids.append((4, value_3_id))
+                else:
+                    line_3_ids = line_obj.search(
+                        cr, uid, [('id', '=', line_3_id),
+                                    ('value_ids', 'in', [value_3_ids[0]])],
+                        context=context)
+                    if not line_3_ids:
+                        line_obj.write(
+                            cr, uid, line_3_id,
+                            {'value_ids': [(4, value_3_ids[0])]},
+                            context=context)
+                    value_ids.append((4, value_3_ids[0]))
+            product_vals = {
+                'product_tmpl_id': template_id,
+                'default_code': default_code,
+                'attribute_value_ids': value_ids,
+                }
             if not product_ids:
-                value_ids = []
-                if gamme_1_id and decoded_row['Gamme 1']:
-                    value_1_ids = value_obj.search(
-                        cr, uid,
-                        [('name', '=', decoded_row['Gamme 1']),
-                         ('attribute_id', '=', gamme_1_id)],
-                        context=context)
-                    if not value_1_ids:
-                        value_1_id = value_obj.create(
-                            cr, uid, {'name': decoded_row['Gamme 1'],
-                                      'attribute_id': gamme_1_id},
-                            context=context)
-                        line_obj.write(
-                            cr, uid, line_1_id, {'value_ids': [(4, value_1_id)]},
-                            context=context)
-                        value_ids.append((4, value_1_id))
-                    else:
-                        line_1_ids = line_obj.search(
-                            cr, uid, [('id', '=', line_1_id),
-                                      ('value_ids', 'in', [value_1_ids[0]])],
-                            context=context)
-                        if not line_1_ids:
-                            line_obj.write(
-                                cr, uid, line_1_id,
-                                {'value_ids': [(4, value_1_ids[0])]},
-                                context=context)
-                        value_ids.append((4, value_1_ids[0]))
-                if gamme_2_id and decoded_row['Gamme 2']:
-                    value_2_ids = value_obj.search(
-                        cr, uid,
-                        [('name', '=', decoded_row['Gamme 2']),
-                         ('attribute_id', '=', gamme_2_id)],
-                        context=context)
-                    if not value_2_ids:
-                        value_2_id = value_obj.create(
-                            cr, uid, {'name': decoded_row['Gamme 2'],
-                                      'attribute_id': gamme_2_id},
-                            context=context)
-                        line_obj.write(
-                            cr, uid, line_2_id, {'value_ids': [(4, value_2_id)]},
-                            context=context)
-                        value_ids.append((4, value_2_id))
-                    else:
-                        line_2_ids = line_obj.search(
-                            cr, uid, [('id', '=', line_2_id),
-                                      ('value_ids', 'in', [value_2_ids[0]])],
-                            context=context)
-                        if not line_2_ids:
-                            line_obj.write(
-                                cr, uid, line_2_id,
-                                {'value_ids': [(4, value_2_ids[0])]},
-                                context=context)
-                        value_ids.append((4, value_2_ids[0]))
-                if gamme_3_id and decoded_row['Gamme 3']:
-                    value_3_ids = value_obj.search(
-                        cr, uid,
-                        [('name', '=', decoded_row['Gamme 3']),
-                        ('attribute_id', '=', gamme_3_id)],
-                        context=context)
-                    if not value_3_ids:
-                        value_3_id = value_obj.create(
-                            cr, uid, {'name': decoded_row['Gamme 3'],
-                                      'attribute_id': gamme_3_id},
-                            context=context)
-                        line_obj.write(
-                            cr, uid, line_3_id, {'value_ids': [(4, value_3_id)]},
-                            context=context)
-                        value_ids.append((4, value_3_id))
-                    else:
-                        line_3_ids = line_obj.search(
-                            cr, uid, [('id', '=', line_3_id),
-                                      ('value_ids', 'in', [value_3_ids[0]])],
-                            context=context)
-                        if not line_3_ids:
-                            line_obj.write(
-                                cr, uid, line_3_id,
-                                {'value_ids': [(4, value_3_ids[0])]},
-                                context=context)
-                        value_ids.append((4, value_3_ids[0]))
-                product_vals = {
-                    'product_tmpl_id': template_id,
-                    'default_code': default_code,
-                    'attribute_value_ids': value_ids,
-                    }
                 product_id = self.create(cr, uid, product_vals, context=context)
             else:
-#TODO 
-                print 'todo'
-            print "%s/%s" % (current_row, total_row)
-        print 'no categ', no_categ
-        print 'no name', no_name
+                self.write(cr, uid, product_ids[0], product_vals, context=context)
+            _logger.info('Line %s/%s', current_row, total_row)
+        _logger.info('End import products with errors: no categ : %s, no name: %s', no_categ, no_name)
         return True
