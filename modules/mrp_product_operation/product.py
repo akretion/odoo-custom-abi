@@ -22,12 +22,71 @@
 import logging
 
 from openerp import models, fields, api, _
+from openerp.exceptions import Warning
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
+# TODO: Delete operation when delete product
 
-class product_template(models.Model):
+
+class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    operation_ids = fields.Many2many('product.product', string=u'Opérations')
+    operation_ids = fields.Many2many('product.product', string='Operations')
+    is_operation = fields.Boolean('Is Operation')
+    routing_workcenter_id = fields.Many2one(
+        'mrp.routing.workcenter',
+        string='Operation',
+        readonly=True,
+        help="")
+    hour_nbr = fields.Float(
+        related='routing_workcenter_id.hour_nbr',
+        string="Nbr d'heures",
+        readonly=True)
+    workcenter_id = fields.Char(
+        related="routing_workcenter_id.workcenter_id.name",
+        string="Poste de charge",
+        readonly=True)
+
+    @api.model
+    def create_routing_workc(self, name):
+        MrpRtWc = self.env['mrp.routing.workcenter']
+        MrpWc = self.env['mrp.workcenter']
+        # need to have a default workcenter in settings
+        workc_ids = MrpWc.search([])
+        if not workc_ids:
+            Warning(_("You need to create at least one workcenter \n"
+                      "to define product operations"))
+        routing_id = self.env.ref(
+            'mrp_product_operation.mrp_product_operation_generic').id
+        vals = {
+            'routing_id': routing_id,
+            'name': name,
+            'workcenter_id': workc_ids[0].id}
+        return MrpRtWc.create(vals)
+
+    @api.model
+    def create(self, vals):
+        if 'is_operation' in vals:
+            if vals['is_operation']:
+                vals['routing_workcenter_id'] = self.create_routing_workc(
+                    vals['name']).id
+        vals['sale_ok'] = False
+        return super(ProductTemplate, self).create(vals)
+
+    @api.one
+    def write(self, vals):
+        MrpRtWc = self.pool['mrp.routing.workcenter']
+        vals['sale_ok'] = False
+        if 'is_operation' in vals:
+            if vals['is_operation']:
+                name = self.name
+                if 'name' in vals:
+                    name = vals['name']
+                vals['routing_workcenter_id'] = self.create_routing_workc(
+                    name).id
+            else:
+                MrpRtWc.unlink(self.routing_workcenter_id)
+                vals['routing_workcenter_id'] = False
+        return super(ProductTemplate, self).write(vals)

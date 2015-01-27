@@ -24,8 +24,7 @@
     'version': '0.1',
     'author': 'Akretion',
     'depends': [
-        'base',
-        'product',
+        'mrp',
     ],
     'demo': [],
     'website': 'https://www.akretion.com',
@@ -34,6 +33,7 @@
     """,
     'data': [
         'product_view.xml',
+        'mrp_data.xml',
     ],
     'qweb': [
     ],
@@ -41,5 +41,3 @@
     'installable': True,
     'auto_install': False,
 }
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
