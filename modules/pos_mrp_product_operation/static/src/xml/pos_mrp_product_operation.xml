@@ -24,11 +24,15 @@
                         <li class="styled-select slate element">
                             <select class="select-operation">
                                 <option value="choice">Select...</option>
-                                <t t-foreach="widget.operations" t-as="operation">
-                                    <option t-att-value="operation.id">
-                                        <t t-esc="operation.display_name"/>
-                                        <t t-esc="widget.format_currency(operation.price)"/>
-                                    </option>
+                                <t t-foreach="widget.categories" t-as="category">
+                                    <optgroup class="pos-categ" t-att-label="category.name">
+                                        <t t-foreach="category.operations" t-as="operation">
+                                            <option t-att-value="operation.id">
+                                                <t t-esc="operation.display_name"/>
+                                                <t t-esc="widget.format_currency(operation.price)"/>
+                                            </option>
+                                        </t>
+                                    </optgroup>
                                 </t>
                             </select>
                         </li>
