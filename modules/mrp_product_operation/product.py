@@ -27,13 +27,14 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
-# TODO: Delete operation when delete product
-
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    operation_ids = fields.Many2many('product.product', string='Operations')
+    operation_ids = fields.Many2many(
+        'product.product',
+        domain=[('is_operation', '=', True)],
+        string='Operations')
     is_operation = fields.Boolean('Is Operation')
     routing_workcenter_id = fields.Many2one(
         'mrp.routing.workcenter',
@@ -53,7 +54,7 @@ class ProductTemplate(models.Model):
     def create_routing_workc(self, name):
         MrpRtWc = self.env['mrp.routing.workcenter']
         MrpWc = self.env['mrp.workcenter']
-        # need to have a default workcenter in settings
+        # TODO need to have a default workcenter in settings (by company or antenne)
         workc_ids = MrpWc.search([])
         if not workc_ids:
             Warning(_("You need to create at least one workcenter \n"
@@ -77,10 +78,14 @@ class ProductTemplate(models.Model):
 
     @api.one
     def write(self, vals):
+        # TODO   if vals['is_operation'] == False:
+        # TODO      search product_id ds ls m2m des otres prds et raise si o - 1 prd
+        # TODO   else:
+        # TODO      check pas de produit le m2m prds operation ds le prd en cours
         MrpRtWc = self.pool['mrp.routing.workcenter']
-        vals['sale_ok'] = False
         if 'is_operation' in vals:
             if vals['is_operation']:
+                vals['sale_ok'] = False
                 name = self.name
                 if 'name' in vals:
                     name = vals['name']
@@ -90,3 +95,8 @@ class ProductTemplate(models.Model):
                 MrpRtWc.unlink(self.routing_workcenter_id)
                 vals['routing_workcenter_id'] = False
         return super(ProductTemplate, self).write(vals)
+
+    @api.multi
+    def unlink(self, ids):
+        ""
+        # TODO: Delete operation when delete product
