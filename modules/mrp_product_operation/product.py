@@ -58,7 +58,7 @@ class ProductTemplate(models.Model):
         workc_ids = MrpWc.search([])
         if not workc_ids:
             Warning(_("You need to create at least one workcenter \n"
-                      "to define product operations"))
+                      "to define product operation1s"))
         routing_id = self.env.ref(
             'mrp_product_operation.mrp_product_operation_generic').id
         vals = {
@@ -85,7 +85,6 @@ class ProductTemplate(models.Model):
         MrpRtWc = self.pool['mrp.routing.workcenter']
         if 'is_operation' in vals:
             if vals['is_operation']:
-                vals['sale_ok'] = False
                 name = self.name
                 if 'name' in vals:
                     name = vals['name']
