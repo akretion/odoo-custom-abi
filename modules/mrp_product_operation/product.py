@@ -73,7 +73,6 @@ class ProductTemplate(models.Model):
             if vals['is_operation']:
                 vals['routing_workcenter_id'] = self.create_routing_workc(
                     vals['name']).id
-        vals['sale_ok'] = False
         return super(ProductTemplate, self).create(vals)
 
     @api.one
