@@ -1,0 +1,9 @@
+.screen .top-content .button.validate {
+    background-color: green;
+    color: white;
+}
+
+.screen .top-content .button.back {
+    background-color: red;
+    color: white;
+}
