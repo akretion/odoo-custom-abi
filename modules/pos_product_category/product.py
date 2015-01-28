@@ -32,7 +32,7 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def write(self, vals):
-        if 'pos_categ_id' and not vals['pos_categ_id']:
+        if 'pos_categ_id' in vals and not vals['pos_categ_id']:
             del vals['pos_categ_id']
         return super(ProductTemplate, self).write(vals)
 
