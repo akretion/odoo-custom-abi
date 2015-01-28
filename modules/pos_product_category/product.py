@@ -29,3 +29,24 @@ class ProductTemplate(models.Model):
 
     pos_categ_id = fields.Many2one('product.category',
                                    store=True, related='categ_id')
+
+    @api.multi
+    def write(self, vals):
+        if 'pos_categ_id' and not vals['pos_categ_id']:
+            del vals['pos_categ_id']
+        return super(ProductTemplate, self).write(vals)
+
+    def _auto_init(self, cr, context=None):
+        context = context or {}
+
+        # avoid integrity errors due to pos_categ_id model redefinition
+        cr.execute('''
+            SELECT 1 FROM product_template
+            WHERE
+                categ_id != pos_categ_id OR
+                pos_categ_id IS NULL
+        ''')
+        if cr.fetchone():
+            cr.execute('ALTER TABLE product_template DROP COLUMN pos_categ_id')
+
+        return super(ProductTemplate, self)._auto_init(cr, context=context)
