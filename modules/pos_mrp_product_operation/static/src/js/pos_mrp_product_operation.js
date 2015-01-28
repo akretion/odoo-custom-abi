@@ -281,9 +281,17 @@ openerp.pos_mrp_product_operation = function(instance, local) {
                 var product_id = this.dataset['variantId'];
                 self.click_variant_handler_original.call(this, event);
                 var product = self.pos.db.get_product_by_id(product_id);
+                var order = self.pos.get('selectedOrder');
                 var last_orderline =
-                    self.pos.get('selectedOrder').getLastOrderline();
-                last_orderline.get_product().operations = [];
+                    order.pos.get('selectedOrder').getLastOrderline();
+
+                // clear previous operations
+                var last_product = jQuery.extend({}, product);
+                last_product.operation_ids = [];
+                last_product.operations = [];
+                order.updateProduct(last_product, last_orderline.id);
+
+                // Chain operations screen
                 var operations = self.pos.db.get_operations(product_id);
                 if (operations.length > 0) {
                     var params = {
