@@ -7,7 +7,7 @@
              <field name="arch" type="xml">
                 <field name="list_price" position="after">
                     <field name="hour_nbr" attrs="{'invisible': [('is_operation', '=', False)]}"/>
-                    <field name="workcenter_id" attrs="{'invisible': [('is_operation', '=', False)]}"/>
+                    <!--<field name="workcenter_id" attrs="{'invisible': [('is_operation', '=', False)]}"/>-->
                 </field>
                  <xpath expr="//sheet/div[2]/div[@name='options']" position="inside">
                     <div>
@@ -26,13 +26,13 @@
                          <field name="operation_ids" colspan="4" nolabel="1">
                              <form>
                                  <group>
-                                    <field name="categ_id"/>
                                     <field name="name"/>
+                                    <field name="categ_id"/>
                                  </group>
                              </form>
                              <tree>
-                                 <field name="categ_id"/>
                                  <field name="name"/>
+                                 <field name="categ_id"/>
                              </tree>
                          </field>
                      </page>

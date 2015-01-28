@@ -24,7 +24,7 @@
     'version': '0.1',
     'author': 'Akretion',
     'depends': [
-        'mrp',
+        'production_from_configuration',
     ],
     'demo': [],
     'website': 'https://www.akretion.com',

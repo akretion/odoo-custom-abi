@@ -33,8 +33,8 @@ class MrpProduction(models.Model):
 
     def _put_workcenter_data(self, product):
         return {
-            'workcenter_id': product.workcenter_id.id,
-            'name': product.workcenter_id.name,
+            'workcenter_id': product.routing_workcenter_id.workcenter_id.id,
+            'name': product.routing_workcenter_id.workcenter_id.name,
             'hour': product.hour_nbr,
             #'sequence': 0
         }
@@ -55,7 +55,7 @@ class MrpProduction(models.Model):
                     if workc_data:
                         config_workcenter_data.append(workc_data)
                     bom_operation = self.env['mrp.bom'].search(
-                        [('product_tmp_id', '=', product_operation.product_tmpl_id.id)])
+                        [('product_tmpl_id','=', product_operation.product_tmpl_id.id)])
                     if bom_operation:
                         # TODO: define factor (ie 1)
                         component_data, workcenter_data = self._bom_explode(
