@@ -272,6 +272,42 @@ openerp.pos_mrp_product_operation = function(instance, local) {
 
     });
 
+    module.VariantListWidget = module.VariantListWidget.extend({
+        init: function(parent, options) {
+            var self = this;
+            this._super(parent, options);
+            this.click_variant_handler_original = this.click_variant_handler;
+            this.click_variant_handler = function(event) {
+                var product_id = this.dataset['variantId'];
+                self.click_variant_handler_original.call(this, event);
+                var product = self.pos.db.get_product_by_id(product_id);
+                var order = self.pos.get('selectedOrder');
+                var last_orderline =
+                    order.pos.get('selectedOrder').getLastOrderline();
+
+                // clear previous operations
+                var last_product = jQuery.extend({}, product);
+                last_product.operation_ids = [];
+                last_product.operations = [];
+                order.updateProduct(last_product, last_orderline.id);
+
+                // Chain operations screen
+                var operations = self.pos.db.get_operations(product_id);
+                if (operations.length > 0) {
+                    var params = {
+                        product: product,
+                        operations: operations,
+                        options: options,
+                        configure_line_id: last_orderline.id,
+                        selected_operations: []
+                    };
+                    self.pos.pos_widget.screen_selector.show_popup(
+                        'select-operation', params);
+                }
+            };
+        },
+    });
+
     module.ProductListWidget = module.ProductListWidget.extend({
 
         init: function(parent, options) {
@@ -281,7 +317,7 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             this.click_product_handler = function(event){
                 var product = self.pos.db.get_product_by_id(this.dataset['productId']);
                 var operations = self.pos.db.get_operations(product.id);
-                if (operations.length > 0) {
+                if (product.product_variant_count == 1 && operations.length > 0) {
                     var params = {
                         product: product,
                         operations: operations,
