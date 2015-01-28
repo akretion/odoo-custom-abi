@@ -100,11 +100,9 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             var product = this.get_product();
             if (!_.isUndefined(product.operations)) {
                 var config = {};
-                config.bom = [];
+                config.operation_ids = [];
                 for(var i=0, len=product.operations.length; i<len; i++) {
-                    config.bom.push({
-                        product_id: product.operations[i].id,
-                    });
+                    config.operation_ids.push(product.operations[i].id);
                 }
                 res.config = config;
                 if (this.lot_number) {
