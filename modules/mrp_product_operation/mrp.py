@@ -55,8 +55,8 @@ class MrpProduction(models.Model):
                     workc_data = self._prepare_workcenter_data(product_operation)
                     if workc_data:
                         config_workcenter_data.append(workc_data)
-                    #bom_operation = self.env['mrp.bom'].search(
-                    #    [('product_tmpl_id', '=', product_operation.product_tmpl_id.id)])
+                    bom_operation = self.env['mrp.bom'].search(
+                        [('product_tmpl_id', '=', product_operation.product_tmpl_id.id)])
                     #import pdb;pdb.set_trace()
                     #if bom_operation:
                     #    # TODO: define factor (ie 1)
@@ -64,6 +64,19 @@ class MrpProduction(models.Model):
                     #        bom_operation, product, 1)
                     #    print 'component_data, workcenter_data IN prod', component_data, workcenter_data
                     #    product_data.append(component_data)
+
+
+                    for bom_op in bom_operation:
+                        for line in bom_op.bom_line_ids:
+                            product_data.append({
+                                'product_uos_qty': line.product_uos_qty,
+                                'name': line.product_id.name,
+                                'product_uom': line.product_uom.id,
+                                'product_qty': line.product_qty,
+                                'product_uos': line.product_uos and line.product_uos.id or False,
+                                'product_id': line.product_id.id
+                            })
+
         if not config_workcenter_data:
             config_workcenter_data = list(workcenter_data)
         return (product_data, config_workcenter_data)
