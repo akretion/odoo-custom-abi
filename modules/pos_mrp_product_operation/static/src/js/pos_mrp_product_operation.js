@@ -333,6 +333,18 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             };
         },
 
+        set_product_list: function(product_list){
+            var product_list_without_operations = [];
+            var product;
+            for (var i=0, len=product_list.length; i<len; i++) {
+                product = product_list[i];
+                if (!product.is_operation) {
+                    product_list_without_operations.push(product);
+                }
+            }
+            return this._super(product_list_without_operations);
+        },
+
     });
 
     module.PosDB = module.PosDB.extend({
@@ -401,6 +413,7 @@ openerp.pos_mrp_product_operation = function(instance, local) {
             for (var i = 0 ; i < this.models.length; i++) {
                 if (this.models[i].model == 'product.product') {
                     this.models[i].fields.push('operation_ids');
+                    this.models[i].fields.push('is_operation');
                 }
             }
             return this._super(session, attributes);
