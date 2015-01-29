@@ -45,10 +45,11 @@ class ProductTemplate(models.Model):
         related='routing_workcenter_id.hour_nbr',
         string="Nbr d'heures",
         readonly=True)
-    workcenter_id = fields.Char(
-        related="routing_workcenter_id.workcenter_id.name",
-        string="Poste de charge",
-        readonly=True)
+    #workcenter_id = fields.Many2one(
+    #    'mrp.routing',
+    #    related="routing_workcenter_id.workcenter_id",
+    #    string="Poste de charge",
+    #    readonly=True)
 
     @api.model
     def create_routing_workc(self, name):
