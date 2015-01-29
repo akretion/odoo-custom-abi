@@ -21,7 +21,7 @@
                     <attribute name="attrs">{'invisible': [('is_operation', '=', True)]}</attribute>
                  </xpath>
                  <xpath expr="//page[@string='Sales']" position="after">
-                     <page string="Product Oper."
+                     <page string="Operations"
                            attrs="{'invisible': [('is_operation', '=', True)]}">
                          <field name="operation_ids" colspan="4" nolabel="1">
                              <form>
