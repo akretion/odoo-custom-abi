@@ -35,7 +35,7 @@ class MrpProduction(models.Model):
     def _prepare_workcenter_data(self, product):
         return {
             'workcenter_id': product.routing_workcenter_id.workcenter_id.id,
-            'name': product.routing_workcenter_id.workcenter_id.name,
+            'name': product.routing_workcenter_id.name,
             'hour': product.hour_nbr,
             #'sequence': 0
         }
