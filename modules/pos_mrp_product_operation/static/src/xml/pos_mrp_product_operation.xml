@@ -53,28 +53,6 @@
         </div>
     </t>
 
-    <t t-name="Product" t-extend="Product">
-        <t t-jquery="span.product" t-operation="replace">
-            <span class="product" t-att-data-product-id="product.id">
-                <div class="product-img">
-                    <img t-att-src="image_url" />
-                    <t t-if="!product.to_weight">
-                        <span class="price-tag">
-                            <t t-esc="widget.format_currency(product.price,'Product Price')"/>
-                        </span>
-                    </t>
-                    <t t-if="product.to_weight">
-                        <span class="price-tag">
-                            <t t-esc="widget.format_currency(product.price,'Product Price')+'/Kg'"/>
-                        </span>
-                    </t>
-                </div>
-                <div class="product-name">
-                    <t t-esc="product.display_name"/>
-                </div>
-            </span>
-        </t>
-    </t>
     <t t-name="XmlReceipt" t-extend="XmlReceipt">
         <t t-jquery="line:has(t[t-esc='line.product_name'])" t-operation="after">
             <t t-if="line.operations">

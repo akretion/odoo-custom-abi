@@ -45,6 +45,7 @@ class ProductTemplate(models.Model):
             WHERE
                 categ_id != pos_categ_id OR
                 pos_categ_id IS NULL
+            LIMIT 1
         ''')
         if cr.fetchone():
             cr.execute('ALTER TABLE product_template DROP COLUMN pos_categ_id')
