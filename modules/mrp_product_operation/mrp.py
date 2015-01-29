@@ -31,7 +31,8 @@ _logger = logging.getLogger(__name__)
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
-    def _put_workcenter_data(self, product):
+    @api.model
+    def _prepare_workcenter_data(self, product):
         return {
             'workcenter_id': product.routing_workcenter_id.workcenter_id.id,
             'name': product.routing_workcenter_id.workcenter_id.name,
@@ -51,16 +52,18 @@ class MrpProduction(models.Model):
                     config['operation_ids']):
                 if (product_operation.type in ('product', 'consu')
                         and product_operation.is_operation):
-                    workc_data = self._put_workcenter_data(product_operation)
+                    workc_data = self._prepare_workcenter_data(product_operation)
                     if workc_data:
                         config_workcenter_data.append(workc_data)
-                    bom_operation = self.env['mrp.bom'].search(
-                        [('product_tmpl_id','=', product_operation.product_tmpl_id.id)])
-                    if bom_operation:
-                        # TODO: define factor (ie 1)
-                        component_data, workcenter_data = self._bom_explode(
-                            bom_operation[0], product, 1)
-                        product_data.append(component_data)
+                    #bom_operation = self.env['mrp.bom'].search(
+                    #    [('product_tmpl_id', '=', product_operation.product_tmpl_id.id)])
+                    #import pdb;pdb.set_trace()
+                    #if bom_operation:
+                    #    # TODO: define factor (ie 1)
+                    #    component_data, workcenter_data = self.env['mrp.bom']._bom_explode(
+                    #        bom_operation, product, 1)
+                    #    print 'component_data, workcenter_data IN prod', component_data, workcenter_data
+                    #    product_data.append(component_data)
         if not config_workcenter_data:
             config_workcenter_data = list(workcenter_data)
         return (product_data, config_workcenter_data)
