@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2014 Akretion (<http://www.akretion.com>).
+#    Copyright (C) 2015-TODAY Akretion (<http://www.akretion.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -22,8 +22,6 @@
 import logging
 
 from openerp import models, fields, api, _
-#from openerp.exceptions import Warning
-#import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
@@ -37,7 +35,6 @@ class MrpProduction(models.Model):
             'workcenter_id': product.routing_workcenter_id.workcenter_id.id,
             'name': product.routing_workcenter_id.name,
             'hour': product.hour_nbr,
-            #'sequence': 0
         }
 
     @api.model
@@ -52,30 +49,28 @@ class MrpProduction(models.Model):
                     config['operation_ids']):
                 if (product_operation.type in ('product', 'consu')
                         and product_operation.is_operation):
-                    workc_data = self._prepare_workcenter_data(product_operation)
+                    workc_data = self._prepare_workcenter_data(
+                        product_operation)
                     if workc_data:
                         config_workcenter_data.append(workc_data)
-                    bom_operation = self.env['mrp.bom'].search(
-                        [('product_tmpl_id', '=', product_operation.product_tmpl_id.id)])
-                    #import pdb;pdb.set_trace()
-                    #if bom_operation:
-                    #    # TODO: define factor (ie 1)
-                    #    component_data, workcenter_data = self.env['mrp.bom']._bom_explode(
-                    #        bom_operation, product, 1)
-                    #    print 'component_data, workcenter_data IN prod', component_data, workcenter_data
-                    #    product_data.append(component_data)
 
+                    condition = [('product_tmpl_id',
+                                  '=',
+                                  product_operation.product_tmpl_id.id
+                                  )]
+                    bom_operation = self.env['mrp.bom'].search(condition)
+                    if bom_operation:
+                        factor = self.env['product.uom']._compute_qty(
+                            production.product_uom.id,
+                            production.product_qty,
+                            bom_operation.product_uom.id
+                        )
+                        component_data, workcenter_data = \
+                            self.env['mrp.bom'].with_context(
+                                production=False)._bom_explode(
+                                bom_operation, product, factor)
 
-                    for bom_op in bom_operation:
-                        for line in bom_op.bom_line_ids:
-                            product_data.append({
-                                'product_uos_qty': line.product_uos_qty,
-                                'name': line.product_id.name,
-                                'product_uom': line.product_uom.id,
-                                'product_qty': line.product_qty,
-                                'product_uos': line.product_uos and line.product_uos.id or False,
-                                'product_id': line.product_id.id
-                            })
+                        product_data.extend(component_data)
 
         if not config_workcenter_data:
             config_workcenter_data = list(workcenter_data)
