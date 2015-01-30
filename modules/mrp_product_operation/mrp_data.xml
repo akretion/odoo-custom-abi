@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record id="mrp_product_operation_generic" model="mrp.routing">
+            <field name="name">All products operations</field>
+        </record>
+
+    </data>
+</openerp>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="assets_backend" name="pos_helper assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/pos_helper/static/src/js/pos_helper.js"></script>
+            </xpath>
+        </template>
+        <template id="index_pos_helper" name="POS Index POS helper" inherit_id="point_of_sale.index">
+            <xpath expr="//head" position="inside">
+                <link rel="stylesheet" href="/pos_helper/static/src/css/pos_helper.css"/>
+            </xpath>
+        </template>
+    </data>
+</openerp>

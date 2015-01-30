@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+         <record id="view_product_operation_form" model="ir.ui.view">
+             <field name="model">product.template</field>
+             <field name="inherit_id" ref="product.product_template_form_view"/>
+             <field name="arch" type="xml">
+                <field name="list_price" position="after">
+                    <field name="hour_nbr" attrs="{'invisible': [('is_operation', '=', False)]}"/>
+                    <!--<field name="workcenter_id" attrs="{'invisible': [('is_operation', '=', False)]}"/>-->
+                </field>
+                 <xpath expr="//sheet/div[2]/div[@name='options']" position="inside">
+                    <div>
+                        <field name="is_operation"/>
+                        <label string="Is Operation"/>
+                        <field name="routing_workcenter_id"
+                               attrs="{'invisible': [('is_operation', '=', False)]}"/>
+                    </div>
+                 </xpath>
+                 <xpath expr="//page[@string='Inventory']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('is_operation', '=', True)]}</attribute>
+                 </xpath>
+                 <xpath expr="//page[@string='Sales']" position="after">
+                     <page string="Operations"
+                           attrs="{'invisible': [('is_operation', '=', True)]}">
+                         <field name="operation_ids" colspan="4" nolabel="1">
+                             <form>
+                                 <group>
+                                    <field name="name"/>
+                                    <field name="categ_id"/>
+                                 </group>
+                             </form>
+                             <tree>
+                                 <field name="name"/>
+                                 <field name="categ_id"/>
+                             </tree>
+                         </field>
+                     </page>
+                 </xpath>
+             </field>
+         </record>
+    </data>
+</openerp>
+
+                            <!---->
+                            <!--<div class="oe_left" name="options" groups="base.group_user">-->
+                            <!--    <div>-->
+                            <!--        <field name="sale_ok"/>-->
+                            <!--        <label for="sale_ok"/>-->
+                            <!--    </div>-->
+                            <!--</div>-->
+                            <!---->

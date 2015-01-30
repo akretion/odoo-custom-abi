@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Module for OpenERP
+  Copyright (C) 2015 Akretion (http://www.akretion.com). All Rights Reserved
+  @author Benoît GUILLOT <benoit.guillot@akretion.com>
+  The licence is in the file __openerp__.py
+-->
+
+<openerp>
+    <data>
+        <!-- INHERITED VIEW FOR THE OBJECT : product_product -->
+
+    <menuitem
+        action="action_import_product_wizard"
+        id="menu_import_product"
+        parent="base.menu_product"
+        sequence="100"/>
+
+
+
+    </data>
+</openerp>

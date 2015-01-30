@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Module for OpenERP
+  Copyright (C) 2015 Akretion (http://www.akretion.com). All Rights Reserved
+  @author Benoît GUILLOT <benoit.guillot@akretion.com>
+  The licence is in the file __openerp__.py
+-->
+
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="import_product_wizard_view">
+            <field name="name">import.product.wizard.view</field>
+            <field name="model">import.product</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Import products">
+                    <group>
+                        <field name="product_file" colspan="2"/>
+                        <field name="spe_mode"/>
+                    </group>
+                    <group name="attributes">
+                        <field name="gamme_1_id"/>
+                        <field name="gamme_2_id"/>
+                        <field name="gamme_3_id"/>
+                    </group>
+                    <button icon="gtk-cancel" special="cancel" string="Cancel"/>
+                    <button icon="gtk-ok" name="import_product"
+                            string="Import products" type="object"/>
+                </form>
+            </field>
+        </record>
+
+         <act_window name="Import products"
+            res_model="import.product"
+            src_model="product.product"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"
+            id="action_import_product_wizard"/>
+
+    </data>
+</openerp>
