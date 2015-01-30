@@ -94,8 +94,3 @@ class ProductTemplate(models.Model):
                 MrpRtWc.unlink(self.routing_workcenter_id)
                 vals['routing_workcenter_id'] = False
         return super(ProductTemplate, self).write(vals)
-
-    @api.multi
-    def unlink(self, ids):
-        ""
-        # TODO: Delete operation when delete product
